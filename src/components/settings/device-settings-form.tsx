@@ -13,7 +13,7 @@ const DEMO_RECEIPT = {
     paymentMethod: "CASH",
   },
   settings: {
-    name: "OLGAX POS",
+    name: "SotuvOn",
     currency: "$",
     currencyDecimals: 2,
     taxName: "Tax",

@@ -1,8 +1,8 @@
 <div align="center">
-  <h1>Olgax POS</h1>
+  <h1>SotuvOn</h1>
   <p>Open-source, offline-capable Point of Sale system — free forever for self-hosted deployments.</p>
   <p>
-    <a href="https://olgax.com">olgax.com</a> ·
+    <a href="https://olgax.com">sotuvon</a> ·
     <a href="https://discord.gg/EAXcCXgUz2">Discord Community</a> ·
     <a href="docs/getting-started.md">Getting Started</a> ·
     <a href="docs/architecture.md">Architecture</a> ·
@@ -20,9 +20,9 @@
 
 ---
 
-## What is Olgax POS?
+## What is SotuvOn?
 
-**Olgax POS** is a fast, touch-friendly, fully offline-capable Point of Sale system built by [OLGAX](https://olgax.com). It is designed to be good enough for real small businesses to use daily — for free, forever — while remaining extensible into a full-featured SaaS platform.
+**SotuvOn** is a fast, touch-friendly, fully offline-capable Point of Sale system built by [SotuvOn](https://olgax.com). It is designed to be good enough for real small businesses to use daily — for free, forever — while remaining extensible into a full-featured SaaS platform.
 
 - **Self-hosted** — run it on your own server with Docker in minutes.
 - **Offline-first** — uses PGLite (Postgres WASM) to record sales even with no internet, then syncs automatically when connectivity returns.
@@ -82,7 +82,7 @@ The first time you open the app you will be guided through a setup wizard that m
 
 ## Quick Start (Serverless — Vercel / Netlify)
 
-You can run Olgax POS serverless without Docker or a VPS:
+You can run SotuvOn serverless without Docker or a VPS:
 
 1. **Fork or Use Template**: Click **Fork** or **Use this template** at the top of this repository to create a copy in your own account.
 2. **Deploy**: Import your copy into **Vercel** or **Netlify**.

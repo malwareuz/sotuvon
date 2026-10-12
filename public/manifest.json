@@ -1,7 +1,7 @@
 {
-  "name": "Olgax POS",
-  "short_name": "Olgax POS",
-  "description": "Open-source offline-capable Point of Sale for small businesses",
+  "name": "SotuvOn",
+  "short_name": "SotuvOn",
+  "description": "O offline-capable Point of Sale for small businesses",
   "start_url": "/pos",
   "display": "standalone",
   "background_color": "#0f2044",

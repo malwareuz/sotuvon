@@ -1,6 +1,6 @@
-# Olgax POS Documentation
+# SotuvOn Documentation
 
-> **Olgax POS** is an open-source, offline-capable Point of Sale system by [OLGAX](https://olgax.com).  
+> **SotuvOn** is an open-source, offline-capable Point of Sale system by [OLGAX](https://olgax.com).  
 > Free forever for self-hosted deployments.
 
 ---

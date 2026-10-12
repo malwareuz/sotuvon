@@ -34,8 +34,8 @@ This is the fastest way to get a production-ready instance running.
 
 ```bash
 # Clone the repository
-git clone https://github.com/olgax/olgax-pos.git
-cd olgax-pos
+git clone https://github.com/olgax/SotuvOn.git
+cd SotuvOn
 
 # Copy and configure environment file
 cp .env.example .env
@@ -67,8 +67,8 @@ Open `http://localhost:3000` (or your server IP) and follow the [Setup Wizard](#
 ### 1. Clone and install dependencies
 
 ```bash
-git clone https://github.com/olgax/olgax-pos.git
-cd olgax-pos
+git clone https://github.com/olgax/SotuvOn.git
+cd SotuvOn
 pnpm install
 ```
 

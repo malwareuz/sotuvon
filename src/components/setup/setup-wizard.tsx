@@ -235,7 +235,7 @@ function StepSystemCheck({ onNext, onBack }: { onNext: () => void; onBack: () =>
                 Nomli fayl yarating <code className="text-[#0f2044] font-semibold">.env.local</code> loyihangizning asosiy qismida quyidagi tarkib bilan:
               </p>
               <CopyBlock
-                code={`DATABASE_URL="postgresql://olgax:olgax@localhost:5432/olgax_pos"
+                code={`DATABASE_URL="postgresql://olgax:olgax@localhost:5432/sotuvon"
 BETTER_AUTH_SECRET="${Array.from(crypto.getRandomValues(new Uint8Array(32)))
   .map((b) => b.toString(16).padStart(2, "0"))
   .join("")}"`}
