@@ -1,9 +1,9 @@
 /**
- * Olgax POS — Service Worker
+ * SotuvOn — Service Worker
  * Strategy: network-first for API routes, cache-first for static assets.
  */
 
-const CACHE_NAME = "olgax-pos-v2";
+const CACHE_NAME = "sotuvon-v2";
 
 const STATIC_PRECACHE = [
   "/",

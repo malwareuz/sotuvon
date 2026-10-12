@@ -74,7 +74,7 @@ export function AppShell({ user, cssVars, children }: AppShellProps) {
               alt="SotuvOn"
               className="lg:hidden h-7 w-7 rounded-lg object-contain"
             />
-            <span className="text-sm font-semibold text-white lg:hidden">sotuvon</span>
+            <span className="text-sm font-semibold text-white lg:hidden">SotuvOn</span>
             <span className="text-sm font-medium text-muted-foreground hidden lg:block">
               {new Date().toLocaleDateString("en-US", {
                 weekday: "short",
