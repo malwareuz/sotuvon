@@ -21,7 +21,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 403 }
       );
     }
-    // Also ensure no admin exists
     const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
     if (adminCount > 0) {
       return NextResponse.json(
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
   } catch {
-    // Table doesn't exist yet or DB not reachable — proceed
+    // DB not ready
   }
 
   const body = await request.json().catch(() => null);
@@ -50,7 +49,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // ⚠️ STORE'NI TOPISH YOKI YARATISH
     let store = await prisma.store.findFirst();
-
     if (!store) {
       store = await prisma.store.create({
         data: {
@@ -60,9 +58,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // Use Better Auth's signUpEmail to handle password hashing
+    // Better Auth orqali user yaratish (parol hash qilinadi)
     const result = await (auth.api as any).signUpEmail({
-      body: { name, email, password },
+      body: {
+        name,
+        email,
+        password,
+        // ⚠️ MUHIM: storeId ni signUpEmail ga ham qo'shish
+        // Agar Better Auth additional fields ni qo'llab-quvvatlasa
+      },
     });
 
     if (!result) {
@@ -74,7 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       where: { email },
       data: {
         role: "ADMIN",
-        storeId: store.id,  // ← STORE ID QO'SHILDI
+        storeId: store.id,  // ← STORE ID BIRIKTIRISH
       },
     });
 

@@ -96,8 +96,8 @@ model User {
   role          Role     @default(CASHIER)
 
   // Har bir foydalanuvchi bitta do'konga biriktiriladi.
-  storeId       String
-  store         Store    @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  storeId       String?
+  store         Store?    @relation(fields: [storeId], references: [id], onDelete: Restrict)
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
