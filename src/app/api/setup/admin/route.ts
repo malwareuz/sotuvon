@@ -16,29 +16,49 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       select: { setupComplete: true },
     });
     if (settings?.setupComplete) {
-      return NextResponse.json({ error: "Setup already complete" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Setup already complete" },
+        { status: 403 }
+      );
     }
     // Also ensure no admin exists
     const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
     if (adminCount > 0) {
-      return NextResponse.json({ error: "An admin account already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "An admin account already exists" },
+        { status: 409 }
+      );
     }
   } catch {
-    // Table doesn't exist yet or DB not reachable — proceed; Prisma errors are
-    // expected before migration runs. The actual create call below will surface
-    // any real DB problem.
+    // Table doesn't exist yet or DB not reachable — proceed
   }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
 
   const { name, email, password } = parsed.data;
 
   try {
     const { auth } = await import("@/lib/auth");
+    const { prisma } = await import("@/lib/db");
+
+    // ⚠️ STORE'NI TOPISH YOKI YARATISH
+    let store = await prisma.store.findFirst();
+
+    if (!store) {
+      store = await prisma.store.create({
+        data: {
+          name: "My Store",
+          slug: "default",
+        },
+      });
+    }
 
     // Use Better Auth's signUpEmail to handle password hashing
     const result = await (auth.api as any).signUpEmail({
@@ -49,15 +69,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       throw new Error("Sign-up returned no result");
     }
 
-    // Update the created user to ADMIN role
-    const { prisma } = await import("@/lib/db");
+    // ⚠️ USER'NI YANGILASH: role + storeId
     await prisma.user.update({
       where: { email },
-      data: { role: "ADMIN" },
+      data: {
+        role: "ADMIN",
+        storeId: store.id,  // ← STORE ID QO'SHILDI
+      },
     });
 
     return NextResponse.json({ ok: true, email });
   } catch (err) {
+    console.error("setup/admin error:", err);
     const msg = err instanceof Error ? err.message : "Failed to create admin";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
