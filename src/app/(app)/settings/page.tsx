@@ -28,7 +28,11 @@ export default async function SettingsPage() {
   try {
     const raw = await prisma.businessSettings.upsert({
       where: { id: "singleton" },
-      create: {},
+      create: {
+         id: "singleton",
+      name: "My Store",
+      storeId: "default-store",
+      },
       update: {},
     });
     settings = serialize(raw);

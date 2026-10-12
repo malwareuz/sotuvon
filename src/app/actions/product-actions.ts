@@ -2,13 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { productFormSchema } from "@/lib/validations/product";
 
-/** Check if a P2002 error relates to a given field name */
 function isConstraintOn(e: any, field: string): boolean {
-  // Prisma 7 with adapter uses meta.constraint (the raw PG constraint name)
-  // Older versions use meta.target (array of field names)
   const constraint: string = e.meta?.constraint ?? "";
   const target: unknown = e.meta?.target;
   const fieldLower = field.toLowerCase();
@@ -19,6 +18,31 @@ function isConstraintOn(e: any, field: string): boolean {
   return false;
 }
 
+// ═══════════════════════════════════════════════════════════
+// STORE'NI OLISH
+// ═══════════════════════════════════════════════════════════
+async function getCurrentStore() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  
+  if (!session?.user) {
+    throw new Error("Avtorizatsiya talab qilinadi");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { storeId: true },
+  });
+
+  if (!user?.storeId) {
+    throw new Error("Foydalanuvchi do'konga biriktirilmagan");
+  }
+
+  return user.storeId;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CREATE PRODUCT
+// ═══════════════════════════════════════════════════════════
 export async function createProduct(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = productFormSchema.safeParse(raw);
@@ -27,12 +51,20 @@ export async function createProduct(formData: FormData) {
     return { error: parsed.error.flatten() };
   }
 
+  let storeId: string;
+  try {
+    storeId = await getCurrentStore();
+  } catch (err) {
+    return { error: { formErrors: [(err as Error).message], fieldErrors: {} } };
+  }
+
   const data = {
     ...parsed.data,
     sku: parsed.data.sku || null,
     barcode: parsed.data.barcode || null,
     category: parsed.data.category || null,
     imageUrl: parsed.data.imageUrl || null,
+    storeId,  // ← STORE ID QO'SHILDI
   };
 
   try {
@@ -55,6 +87,9 @@ export async function createProduct(formData: FormData) {
   redirect("/products");
 }
 
+// ═══════════════════════════════════════════════════════════
+// UPDATE PRODUCT
+// ═══════════════════════════════════════════════════════════
 export async function updateProduct(id: string, formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = productFormSchema.safeParse(raw);
@@ -91,6 +126,9 @@ export async function updateProduct(id: string, formData: FormData) {
   redirect("/products");
 }
 
+// ═══════════════════════════════════════════════════════════
+// DELETE PRODUCT
+// ═══════════════════════════════════════════════════════════
 export async function deleteProduct(id: string) {
   await prisma.product.delete({ where: { id } });
   revalidatePath("/products");

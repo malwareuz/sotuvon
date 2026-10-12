@@ -1,5 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// ============================================================
+// Sotuvon - Multi-Tenant POS Database Schema
+// Database: PostgreSQL
+// ============================================================
 
 generator client {
   provider = "prisma-client"
@@ -11,7 +14,7 @@ datasource db {
 }
 
 // ============================================================
-// Enums
+// ENUMS
 // ============================================================
 
 enum Role {
@@ -31,193 +34,11 @@ enum PaymentMethod {
   OTHER
 }
 
-// ============================================================
-// Auth models (required by Better Auth)
-// ============================================================
-
-model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  role          Role      @default(CASHIER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  sales             Sale[]
-  sessions          Session[]
-  accounts          Account[]
-  stockAdjustments  StockAdjustment[]
-  refunds           Refund[]
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Account {
-  id                    String    @id @default(cuid())
-  accountId             String
-  providerId            String
-  userId                String
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([providerId, accountId])
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-// ============================================================
-// Product
-// ============================================================
-
-model Product {
-  id                String   @id @default(cuid())
-  name              String
-  sku               String?  @unique
-  barcode           String?  @unique
-  price             Decimal  @db.Decimal(10, 2)
-  cost              Decimal? @db.Decimal(10, 2)
-  stock             Int      @default(0)
-  category          String?
-  imageUrl          String?
-  lowStockThreshold Int      @default(5)
-  active            Boolean  @default(true)
-  supplierId        String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  saleItems        SaleItem[]
-  stockAdjustments StockAdjustment[]
-  supplier         Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-}
-
-// ============================================================
-// Customer
-// ============================================================
-
-model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String?  @unique
-  email     String?  @unique
-  notes     String?
-  loyaltyPoints Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  sales         Sale[]
-  loyaltyLogs   LoyaltyLog[]
-}
-
-// ============================================================
-// Sales
-// ============================================================
-
-model Sale {
-  id             String        @id @default(cuid())
-  userId         String
-  customerId     String?
-  subtotal       Decimal       @db.Decimal(10, 2)
-  taxRate        Decimal       @default(0) @db.Decimal(5, 2)
-  taxAmount      Decimal       @db.Decimal(10, 2)
-  discountAmount Decimal       @default(0) @db.Decimal(10, 2)
-  tipAmount      Decimal?      @db.Decimal(10, 2)
-  total          Decimal       @db.Decimal(10, 2)
-  paymentMethod  PaymentMethod @default(CASH)
-  paymentLines   Json?
-  amountTendered Decimal?      @db.Decimal(10, 2)
-  changeDue      Decimal?      @db.Decimal(10, 2)
-  status         SaleStatus    @default(COMPLETED)
-  voidReason     String?
-  notes          String?
-  createdAt      DateTime      @default(now())
-
-  user     User      @relation(fields: [userId], references: [id])
-  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  items    SaleItem[]
-  refunds  Refund[]
-  loyaltyLogs LoyaltyLog[]
-}
-
-model SaleItem {
-  id        String  @id @default(cuid())
-  saleId    String
-  productId String?
-  name      String
-  price     Decimal @db.Decimal(10, 2)
-  quantity  Int
-  total     Decimal @db.Decimal(10, 2)
-  notes     String?
-
-  sale    Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-}
-
-// ============================================================
-// Held Orders (POS "Park Sale" feature)
-// ============================================================
-
-model HeldOrder {
-  id           String   @id @default(cuid())
-  label        String?
-  cartSnapshot Json
-  createdAt    DateTime @default(now())
-}
-
-// ============================================================
-// Loyalty
-// ============================================================
-
 enum LoyaltyLogType {
   EARN
   REDEEM
   ADJUST
 }
-
-model LoyaltyLog {
-  id         String          @id @default(cuid())
-  customerId String
-  saleId     String?
-  delta      Int
-  type       LoyaltyLogType
-  note       String?
-  createdAt  DateTime        @default(now())
-
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  sale     Sale?    @relation(fields: [saleId], references: [id], onDelete: SetNull)
-}
-
-// ============================================================
-// Inventory
-// ============================================================
 
 enum StockAdjReason {
   RECEIVED
@@ -227,81 +48,454 @@ enum StockAdjReason {
   OPENING_COUNT
 }
 
+// ============================================================
+// STORE / TENANT
+//
+// Har bir mijoz yoki biznes uchun alohida Store yaratiladi.
+// Store - tenantlarning asosiy identifikatori.
+// ============================================================
+
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+ 
+  active    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users            User[]
+  products         Product[]
+  customers        Customer[]
+  sales            Sale[]
+  saleItems        SaleItem[]
+  heldOrders       HeldOrder[]
+  loyaltyLogs      LoyaltyLog[]
+  stockAdjustments StockAdjustment[]
+  suppliers        Supplier[]
+  refunds          Refund[]
+  businessSettings BusinessSettings?
+
+  @@index([active])
+  @@index([createdAt])
+}
+
+// ============================================================
+// AUTH MODELS - BETTER AUTH
+// ============================================================
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+
+  // Foydalanuvchining do'kon ichidagi roli.
+  role          Role     @default(CASHIER)
+
+  // Har bir foydalanuvchi bitta do'konga biriktiriladi.
+  storeId       String
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Restrict)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sales             Sale[]
+  sessions          Session[]
+  accounts          Account[]
+  stockAdjustments  StockAdjustment[]
+  refunds           Refund[]
+  heldOrders        HeldOrder[]
+
+  @@index([storeId])
+  @@index([storeId, role])
+}
+
+// Better Auth session model
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Better Auth account model
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+// Better Auth verification model
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+// ============================================================
+// PRODUCTS
+// Har bir mahsulot bitta do'konga tegishli.
+// SKU va barcode do'kon ichida takrorlanmasligi kerak.
+// ============================================================
+
+model Product {
+  id                String   @id @default(cuid())
+
+  storeId           String
+  store             Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  name              String
+  sku               String?
+  barcode           String?
+
+  price             Decimal  @db.Decimal(10, 2)
+  cost              Decimal? @db.Decimal(10, 2)
+  stock             Int      @default(0)
+
+  category          String?
+  imageUrl          String?
+  lowStockThreshold Int      @default(5)
+  active            Boolean  @default(true)
+
+  supplierId        String?
+  supplier          Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  saleItems         SaleItem[]
+  stockAdjustments  StockAdjustment[]
+
+  @@unique([storeId, sku])
+  @@unique([storeId, barcode])
+  @@index([storeId])
+  @@index([storeId, name])
+  @@index([storeId, category])
+  @@index([storeId, active])
+  @@index([supplierId])
+}
+
+// ============================================================
+// CUSTOMERS
+// Mijozlarning telefon raqami va email manzili
+// faqat o'z do'koni ichida unique bo'ladi.
+// ============================================================
+
+model Customer {
+  id            String   @id @default(cuid())
+
+  storeId       String
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  name          String
+  phone         String?
+  email         String?
+  notes         String?
+  loyaltyPoints Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sales         Sale[]
+  loyaltyLogs   LoyaltyLog[]
+
+  @@unique([storeId, phone])
+  @@unique([storeId, email])
+  @@index([storeId])
+  @@index([storeId, name])
+}
+
+// ============================================================
+// SALES
+// Har bir savdo do'kon va kassirga biriktiriladi.
+// ============================================================
+
+model Sale {
+  id             String        @id @default(cuid())
+
+  storeId        String
+  store          Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  customerId     String?
+  customer       Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  subtotal       Decimal       @db.Decimal(10, 2)
+  taxRate        Decimal       @default(0) @db.Decimal(5, 2)
+  taxAmount      Decimal       @db.Decimal(10, 2)
+  discountAmount Decimal       @default(0) @db.Decimal(10, 2)
+  tipAmount      Decimal?      @db.Decimal(10, 2)
+  total          Decimal       @db.Decimal(10, 2)
+
+  paymentMethod  PaymentMethod @default(CASH)
+  paymentLines   Json?
+  amountTendered Decimal?      @db.Decimal(10, 2)
+  changeDue      Decimal?      @db.Decimal(10, 2)
+
+  status         SaleStatus    @default(COMPLETED)
+  voidReason     String?
+  notes          String?
+
+  createdAt      DateTime      @default(now())
+
+  items          SaleItem[]
+  refunds        Refund[]
+  loyaltyLogs    LoyaltyLog[]
+
+  @@index([storeId])
+  @@index([storeId, createdAt])
+  @@index([storeId, status])
+  @@index([storeId, userId])
+  @@index([customerId])
+}
+
+// ============================================================
+// SALE ITEMS
+// Savdo tarkibidagi mahsulotlar.
+// storeId qo'shimcha tenant filtrlash uchun saqlanadi.
+// ============================================================
+
+model SaleItem {
+  id        String   @id @default(cuid())
+
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  saleId    String
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int
+  total     Decimal  @db.Decimal(10, 2)
+  notes     String?
+
+  @@index([storeId])
+  @@index([saleId])
+  @@index([productId])
+}
+
+// ============================================================
+// HELD ORDERS
+// Vaqtincha saqlangan savatlar.
+// ============================================================
+
+model HeldOrder {
+  id           String   @id @default(cuid())
+
+  storeId      String
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label        String?
+  cartSnapshot Json
+
+  createdAt    DateTime @default(now())
+
+  @@index([storeId])
+  @@index([storeId, userId])
+}
+
+// ============================================================
+// LOYALTY LOGS
+// Mijoz bonuslari tarixi.
+// ============================================================
+
+model LoyaltyLog {
+  id         String          @id @default(cuid())
+
+  storeId    String
+  store      Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  saleId     String?
+  sale       Sale?           @relation(fields: [saleId], references: [id], onDelete: SetNull)
+
+  delta      Int
+  type       LoyaltyLogType
+  note       String?
+  createdAt  DateTime        @default(now())
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([saleId])
+}
+
+// ============================================================
+// STOCK ADJUSTMENTS
+// Ombordagi mahsulot soni o'zgarishlari.
+// ============================================================
+
 model StockAdjustment {
   id        String         @id @default(cuid())
+
+  storeId   String
+  store     Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
   productId String
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+
   delta     Int
   reason    StockAdjReason
   note      String?
   createdAt DateTime       @default(now())
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id])
+  @@index([storeId])
+  @@index([productId])
+  @@index([userId])
+  @@index([storeId, createdAt])
 }
+
+// ============================================================
+// SUPPLIERS
+// Har bir yetkazib beruvchi bitta do'konga tegishli.
+// ============================================================
 
 model Supplier {
   id          String   @id @default(cuid())
+
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
   name        String
   contactName String?
   phone       String?
   email       String?
   notes       String?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products Product[]
+  products    Product[]
+
+  @@index([storeId])
+  @@index([storeId, name])
 }
 
 // ============================================================
-// Refunds
+// REFUNDS
+// Qaytarilgan savdolar.
 // ============================================================
 
 model Refund {
-  id         String   @id @default(cuid())
-  saleId     String
-  userId     String
-  amount     Decimal  @db.Decimal(10, 2)
-  reason     String?
-  items      Json
-  restoreStock Boolean @default(true)
-  createdAt  DateTime @default(now())
+  id           String   @id @default(cuid())
 
-  sale Sale @relation(fields: [saleId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  storeId      String
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  saleId       String
+  sale         Sale     @relation(fields: [saleId], references: [id], onDelete: Restrict)
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  amount       Decimal  @db.Decimal(10, 2)
+  reason       String?
+  items        Json
+  restoreStock Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+
+  @@index([storeId])
+  @@index([saleId])
+  @@index([userId])
 }
 
 // ============================================================
-// Business Settings (single-row singleton)
+// BUSINESS SETTINGS
+// Endi bitta global singleton emas.
+// Har bir do'konning o'z sozlamalari bo'ladi.
 // ============================================================
 
 model BusinessSettings {
-  id               String   @id @default("singleton")
-  name             String   @default("My Store")
-  logoUrl          String?
-  primaryColor     String   @default("#0f2044")
-  accentColor      String   @default("#f5c518")
-  currency         String   @default("$")
-  currencyDecimals Int      @default(2)
-  taxRate          Decimal  @default(0) @db.Decimal(5, 4)
-  taxName          String   @default("Tax")
-  receiptFooter    String   @default("Thank you for your purchase!")
-  language         String   @default("en")
+  id                String   @id @default(cuid())
+  
+ 
+  storeId           String   @unique
+  store             Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  name              String   @default("My Store")
+  logoUrl           String?
+
+  primaryColor      String   @default("#0f2044")
+  accentColor       String   @default("#f5c518")
+
+  currency          String   @default("$")
+  currencyDecimals  Int      @default(2)
+
+  taxRate           Decimal  @default(0) @db.Decimal(5, 4)
+  taxName           String   @default("Tax")
+
+  receiptFooter     String   @default("Thank you for your purchase!")
+  language          String   @default("en")
+
   // Loyalty
-  loyaltyEnabled   Boolean  @default(false)
-  loyaltyEarnRate  Decimal  @default(1) @db.Decimal(8, 4)  // points per $1 spent
-  loyaltyRedeemValue Decimal @default(100) @db.Decimal(8, 4) // points per $1 discount
-  // Low-stock
-  lowStockThreshold Int     @default(5)
+  loyaltyEnabled    Boolean  @default(false)
+  loyaltyEarnRate   Decimal  @default(1) @db.Decimal(8, 4)
+  loyaltyRedeemValue Decimal @default(100) @db.Decimal(8, 4)
+
+  // Low stock
+  lowStockThreshold Int      @default(5)
+
   // Image storage
-  storageProvider  String   @default("local")  // local | vercel_blob | cloudflare_r2 | s3
-  storageRegion    String?
-  storageBucket    String?
-  storageEndpoint  String?
-  storageAccessKey String?
-  storageSecretKey String?
-  storagePublicUrl String?
-  setupComplete    Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  storageProvider   String   @default("local")
+  storageRegion     String?
+  storageBucket     String?
+  storageEndpoint   String?
+  storageAccessKey  String?
+  storageSecretKey  String?
+  storagePublicUrl  String?
+
+  setupComplete     Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([storeId])
 }
+

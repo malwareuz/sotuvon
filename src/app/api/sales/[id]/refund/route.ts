@@ -25,14 +25,43 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // ⚠️ STORE'NI OLISH
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { storeId: true },
+  });
+
+  if (!user?.storeId) {
+    return NextResponse.json(
+      { error: "Foydalanuvchi do'konga biriktirilmagan" },
+      { status: 400 }
+    );
+  }
+
   const { id: saleId } = await params;
-  const sale = await prisma.sale.findUnique({ where: { id: saleId }, include: { items: true } });
-  if (!sale) return NextResponse.json({ error: "Sale not found" }, { status: 404 });
-  if (sale.status !== "COMPLETED") return NextResponse.json({ error: "Sale is not refundable" }, { status: 400 });
+  const sale = await prisma.sale.findUnique({
+    where: { id: saleId },
+    include: { items: true },
+  });
+
+  if (!sale) {
+    return NextResponse.json({ error: "Sale not found" }, { status: 404 });
+  }
+
+  // ⚠️ FAQAT SHU DO'KON SAVDOSI
+  if (sale.storeId !== user.storeId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (sale.status !== "COMPLETED") {
+    return NextResponse.json({ error: "Sale is not refundable" }, { status: 400 });
+  }
 
   const body = await req.json();
   const parsed = refundSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
 
   const { reason, restoreStock, items } = parsed.data;
   const refundAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
@@ -42,6 +71,7 @@ export async function POST(
       data: {
         saleId,
         userId: session.user.id,
+        storeId: user.storeId,  // ← STORE ID QO'SHILDI
         amount: refundAmount,
         reason: reason || null,
         items: items,
@@ -50,7 +80,10 @@ export async function POST(
     });
 
     // Update sale status
-    await tx.sale.update({ where: { id: saleId }, data: { status: "REFUNDED" } });
+    await tx.sale.update({
+      where: { id: saleId },
+      data: { status: "REFUNDED" },
+    });
 
     // Restore stock
     if (restoreStock) {

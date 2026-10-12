@@ -28,14 +28,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
 
-  const { businessName, currency, currencyDecimals, taxRate, taxName, receiptFooter } = parsed.data;
+  const {
+    businessName,
+    currency,
+    currencyDecimals,
+    taxRate,
+    taxName,
+    receiptFooter,
+  } = parsed.data;
 
   try {
     const { prisma } = await import("@/lib/db");
 
+    // ⚠️ TENANT YO'Q — FAQAT STORE YARATISH
+    // 1. Store topish yoki yaratish
+    let store = await prisma.store.findFirst();
+
+    if (!store) {
+      store = await prisma.store.create({
+        data: {
+          name: businessName,
+          slug: "default",
+        },
+      });
+    }
+
+    // 2. BusinessSettings yaratish/yangilash
     await prisma.businessSettings.upsert({
       where: { id: "singleton" },
       create: {
@@ -47,6 +71,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         taxName,
         receiptFooter,
         setupComplete: true,
+        storeId: store.id,  // ← FAQAT STORE ID
       },
       update: {
         name: businessName,
@@ -56,10 +81,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         taxName,
         receiptFooter,
         setupComplete: true,
+        storeId: store.id,  // ← FAQAT STORE ID
       },
     });
 
     const response = NextResponse.json({ ok: true });
+
     // Set a cookie so middleware knows setup is complete without a DB round-trip
     response.cookies.set("olgax-setup-complete", "1", {
       httpOnly: true,
@@ -67,9 +94,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       path: "/",
       maxAge: 60 * 60 * 24 * 365, // 1 year
     });
+
     return response;
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to save settings";
+    const msg =
+      err instanceof Error ? err.message : "Failed to save settings";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
