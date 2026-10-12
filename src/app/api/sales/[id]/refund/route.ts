@@ -38,19 +38,17 @@ export async function POST(
     );
   }
 
+  const storeId = user.storeId;
   const { id: saleId } = await params;
-  const sale = await prisma.sale.findUnique({
-    where: { id: saleId },
+
+  // ⚠️ FAQAT SHU DO'KON SAVDOSI
+  const sale = await prisma.sale.findFirst({
+    where: { id: saleId, storeId },  // ← storeId tekshirish
     include: { items: true },
   });
 
   if (!sale) {
     return NextResponse.json({ error: "Sale not found" }, { status: 404 });
-  }
-
-  // ⚠️ FAQAT SHU DO'KON SAVDOSI
-  if (sale.storeId !== user.storeId) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   if (sale.status !== "COMPLETED") {
@@ -67,11 +65,12 @@ export async function POST(
   const refundAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   const refund = await prisma.$transaction(async (tx) => {
+    // 1. Refund yaratish
     const r = await tx.refund.create({
       data: {
         saleId,
         userId: session.user.id,
-        storeId: user.storeId,  // ← STORE ID QO'SHILDI
+        storeId,                                    // ← storeId
         amount: refundAmount,
         reason: reason || null,
         items: items,
@@ -79,18 +78,18 @@ export async function POST(
       },
     });
 
-    // Update sale status
+    // 2. Savdo statusini yangilash
     await tx.sale.update({
-      where: { id: saleId },
+      where: { id: saleId, storeId },               // ← storeId
       data: { status: "REFUNDED" },
     });
 
-    // Restore stock
+    // 3. Stockni tiklash — FAQAT SHU DO'KON MAHSULOTLARI
     if (restoreStock) {
       for (const item of items) {
         if (item.productId) {
-          await tx.product.update({
-            where: { id: item.productId },
+          await tx.product.updateMany({
+            where: { id: item.productId, storeId }, // ← storeId
             data: { stock: { increment: item.quantity } },
           });
         }

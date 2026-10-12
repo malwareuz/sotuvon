@@ -14,12 +14,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Guard: only allow if setup not yet complete
   try {
     const { prisma } = await import("@/lib/db");
-    const existing = await prisma.businessSettings.findUnique({
-      where: { id: "singleton" },
+    const existing = await prisma.businessSettings.findFirst({
       select: { setupComplete: true },
     });
     if (existing?.setupComplete) {
-      return NextResponse.json({ error: "Setup already complete" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Setup already complete" },
+        { status: 403 }
+      );
     }
   } catch {
     // DB not ready
@@ -46,8 +48,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { prisma } = await import("@/lib/db");
 
-    // ⚠️ TENANT YO'Q — FAQAT STORE YARATISH
-    // 1. Store topish yoki yaratish
+    // ═══════════════════════════════════════════════════════════
+    // STORE YARATISH (TENANT YO'Q)
+    // ═══════════════════════════════════════════════════════════
     let store = await prisma.store.findFirst();
 
     if (!store) {
@@ -59,11 +62,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // 2. BusinessSettings yaratish/yangilash
+    // ═══════════════════════════════════════════════════════════
+    // BUSINESS SETTINGS — storeId bo'yicha upsert
+    // ═══════════════════════════════════════════════════════════
     await prisma.businessSettings.upsert({
-      where: { id: "singleton" },
+      where: { storeId: store.id },               // ← storeId bo'yicha
       create: {
-        id: "singleton",
+        storeId: store.id,                        // ← storeId
         name: businessName,
         currency,
         currencyDecimals,
@@ -71,7 +76,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         taxName,
         receiptFooter,
         setupComplete: true,
-        storeId: store.id,  // ← FAQAT STORE ID
       },
       update: {
         name: businessName,
@@ -81,18 +85,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         taxName,
         receiptFooter,
         setupComplete: true,
-        storeId: store.id,  // ← FAQAT STORE ID
       },
     });
 
     const response = NextResponse.json({ ok: true });
 
-    // Set a cookie so middleware knows setup is complete without a DB round-trip
     response.cookies.set("olgax-setup-complete", "1", {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 365, // 1 year
+      maxAge: 60 * 60 * 24 * 365,
     });
 
     return response;

@@ -3,9 +3,27 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+// ═══════════════════════════════════════════════════════════
+// STORE'NI OLISH
+// ═══════════════════════════════════════════════════════════
+async function getStoreId(): Promise<string | null> {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
+  if (!session?.user) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { storeId: true },
+  });
+
+  return user?.storeId ?? null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// GET /api/sales/export?from=&to=
+// ═══════════════════════════════════════════════════════════
+export async function GET(request: NextRequest) {
+  const storeId = await getStoreId();
+  if (!storeId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -13,7 +31,11 @@ export async function GET(request: NextRequest) {
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
-  const where: Record<string, unknown> = {};
+  // ⚠️ FAQAT SHU DO'KON SAVDOLARI
+  const where: Record<string, unknown> = {
+    storeId,                                              // ← storeId
+  };
+
   if (from || to) {
     where.createdAt = {
       ...(from ? { gte: new Date(from) } : {}),
@@ -46,7 +68,7 @@ export async function GET(request: NextRequest) {
 
   for (const sale of sales) {
     const itemsSummary = sale.items
-      .map((i: typeof sale.items[number]) => `${i.quantity}x ${i.product?.name ?? i.name}`)
+      .map((i) => `${i.quantity}x ${i.product?.name ?? i.name}`)
       .join("; ");
 
     rows.push(

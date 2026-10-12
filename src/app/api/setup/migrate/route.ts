@@ -4,20 +4,29 @@ import path from "path";
 
 export const maxDuration = 60; // 60s timeout
 
+// ═══════════════════════════════════════════════════════════
+// POST /api/setup/migrate — Migratsiyani ishga tushirish
+// ═══════════════════════════════════════════════════════════
 export async function POST(): Promise<NextResponse> {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ error: "DATABASE_URL is not set" }, { status: 400 });
+    return NextResponse.json(
+      { error: "DATABASE_URL is not set" },
+      { status: 400 }
+    );
   }
 
   // Guard: if already fully set up, refuse
   try {
     const { prisma } = await import("@/lib/db");
-    const settings = await prisma.businessSettings.findUnique({
-      where: { id: "singleton" },
+    // ⚠️ findFirst — singleton emas
+    const settings = await prisma.businessSettings.findFirst({
       select: { setupComplete: true },
     });
     if (settings?.setupComplete) {
-      return NextResponse.json({ error: "Setup already complete" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Setup already complete" },
+        { status: 403 }
+      );
     }
   } catch {
     // DB not init yet — proceed
@@ -43,10 +52,14 @@ export async function POST(): Promise<NextResponse> {
     return NextResponse.json({ ok: true, output });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Migration failed";
-    // execSync throws with .stdout/.stderr on non-zero exit
     const stderr =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (err as any)?.stderr?.toString() ?? (err as any)?.stdout?.toString() ?? message;
-    return NextResponse.json({ ok: false, error: stderr }, { status: 500 });
+      (err as any)?.stderr?.toString() ??
+      (err as any)?.stdout?.toString() ??
+      message;
+    return NextResponse.json(
+      { ok: false, error: stderr },
+      { status: 500 }
+    );
   }
 }
