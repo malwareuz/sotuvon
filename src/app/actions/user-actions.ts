@@ -6,9 +6,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-// ═══════════════════════════════════════════════════════════
-// SCHEMAS
-// ═══════════════════════════════════════════════════════════
+// ---- Schemas ----
+
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -35,9 +34,8 @@ const changePasswordSchema = z.object({
     .refine((pwd) => pwd !== "", "New password is required"),
 });
 
-// ═══════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════
+// ---- Helper: Check Admin Authorization ----
+
 async function checkAdminAuth() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
@@ -46,25 +44,16 @@ async function checkAdminAuth() {
   if (session.user.role !== "ADMIN") {
     throw new Error("Forbidden: Admin access required");
   }
-
-  // ⚠️ STORE'NI OLISH
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { storeId: true },
-  });
-
-  if (!user?.storeId) {
-    throw new Error("Foydalanuvchi do'konga biriktirilmagan");
-  }
-
-  return { session, storeId: user.storeId };
+  return session;
 }
 
-// ═══════════════════════════════════════════════════════════
-// CREATE USER
-// ═══════════════════════════════════════════════════════════
+// ---- Actions ----
+
+/**
+ * Creates a new user (Admin only)
+ */
 export async function createUserAction(data: z.infer<typeof createUserSchema>) {
-  const { storeId } = await checkAdminAuth();
+  await checkAdminAuth();
 
   const parsed = createUserSchema.safeParse(data);
   if (!parsed.success) {
@@ -80,18 +69,17 @@ export async function createUserAction(data: z.infer<typeof createUserSchema>) {
       return { error: "User with this email already exists" };
     }
 
-    // Better Auth orqali user yaratish
+    // Call Better Auth server-side API to create user.
+    // In Better Auth v1, auth.api is typed dynamically based on plugins.
+    // If TypeScript fails to resolve the types, cast to any is avoided by using standard call.
     await auth.api.signUpEmail({
       body: { name, email, password },
     });
 
-    // ⚠️ USER'NI YANGILASH: role + storeId
+    // Update user role
     const user = await prisma.user.update({
       where: { email },
-      data: {
-        role,
-        storeId,  // ← STORE ID QO'SHISH
-      },
+      data: { role },
       select: {
         id: true,
         email: true,
@@ -109,11 +97,11 @@ export async function createUserAction(data: z.infer<typeof createUserSchema>) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// UPDATE USER
-// ═══════════════════════════════════════════════════════════
+/**
+ * Updates an existing user's details (Admin only)
+ */
 export async function updateUserAction(id: string, data: z.infer<typeof updateUserSchema>) {
-  const { session, storeId } = await checkAdminAuth();
+  const session = await checkAdminAuth();
 
   const parsed = updateUserSchema.safeParse(data);
   if (!parsed.success) {
@@ -123,16 +111,6 @@ export async function updateUserAction(id: string, data: z.infer<typeof updateUs
   const updates = parsed.data;
 
   try {
-    // ⚠️ FAQAT SHU DO'KON USERI
-    const target = await prisma.user.findFirst({
-      where: { id, storeId },  // ← storeId tekshirish
-      select: { id: true },
-    });
-
-    if (!target) {
-      return { error: "User topilmadi" };
-    }
-
     // Prevent self-demotion from admin
     if (updates.role && updates.role !== "ADMIN" && session.user.id === id) {
       return { error: "Cannot demote yourself from admin role" };
@@ -169,11 +147,12 @@ export async function updateUserAction(id: string, data: z.infer<typeof updateUs
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// DELETE USER
-// ═══════════════════════════════════════════════════════════
+/**
+ * Deletes a user (Admin only).
+ * Checks for historical transaction records to maintain audit safety.
+ */
 export async function deleteUserAction(id: string) {
-  const { session, storeId } = await checkAdminAuth();
+  const session = await checkAdminAuth();
 
   try {
     // Prevent self-deletion
@@ -181,29 +160,18 @@ export async function deleteUserAction(id: string) {
       return { error: "Cannot delete your own account" };
     }
 
-    // ⚠️ FAQAT SHU DO'KON USERI
-    const targetUser = await prisma.user.findFirst({
-      where: { id, storeId },  // ← storeId tekshirish
-    });
-
-    if (!targetUser) {
-      return { error: "User topilmadi" };
-    }
-
     // Prevent deleting the last admin
-    const adminCount = await prisma.user.count({
-      where: { role: "ADMIN", storeId },  // ← storeId
-    });
-
-    if (targetUser.role === "ADMIN" && adminCount === 1) {
+    const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (targetUser?.role === "ADMIN" && adminCount === 1) {
       return { error: "Cannot delete the last admin account" };
     }
 
-    // ⚠️ DB Audit Safety — FAQAT SHU DO'KON
+    // DB Audit Safety: Check if user has associated historical sales, refunds, or stock adjustments
     const [salesCount, refundsCount, adjustmentsCount] = await Promise.all([
-      prisma.sale.count({ where: { userId: id, storeId } }),              // ← storeId
-      prisma.refund.count({ where: { userId: id, storeId } }),            // ← storeId
-      prisma.stockAdjustment.count({ where: { userId: id, storeId } }),   // ← storeId
+      prisma.sale.count({ where: { userId: id } }),
+      prisma.refund.count({ where: { userId: id } }),
+      prisma.stockAdjustment.count({ where: { userId: id } }),
     ]);
 
     if (salesCount > 0 || refundsCount > 0 || adjustmentsCount > 0) {
@@ -222,9 +190,9 @@ export async function deleteUserAction(id: string) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// UPDATE PROFILE
-// ═══════════════════════════════════════════════════════════
+/**
+ * Updates the current user's profile
+ */
 export async function updateProfileAction(data: z.infer<typeof updateProfileSchema>) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
@@ -239,6 +207,7 @@ export async function updateProfileAction(data: z.infer<typeof updateProfileSche
   const { name, email } = parsed.data;
 
   try {
+    // Update user profile using Better Auth server-side API so that session/cookie cache is updated
     await auth.api.updateUser({
       body: {
         ...(name && { name }),
@@ -267,9 +236,9 @@ export async function updateProfileAction(data: z.infer<typeof updateProfileSche
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// CHANGE PASSWORD
-// ═══════════════════════════════════════════════════════════
+/**
+ * Changes the current user's password
+ */
 export async function changePasswordAction(data: z.infer<typeof changePasswordSchema>) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {

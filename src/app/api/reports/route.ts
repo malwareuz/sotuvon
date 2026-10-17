@@ -3,36 +3,10 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-// ═══════════════════════════════════════════════════════════
-// STORE'NI OLISH
-// ═══════════════════════════════════════════════════════════
-async function getStoreId(): Promise<string | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return null;
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { storeId: true },
-  });
-
-  return user?.storeId ?? null;
-}
-
-// ═══════════════════════════════════════════════════════════
-// GET /api/reports?range=today|week|month|custom&from=&to=
-// ═══════════════════════════════════════════════════════════
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const storeId = await getStoreId();
-  if (!storeId) {
-    return NextResponse.json(
-      { error: "Foydalanuvchi do'konga biriktirilmagan" },
-      { status: 400 }
-    );
   }
 
   const { searchParams } = req.nextUrl;
@@ -62,26 +36,14 @@ export async function GET(req: NextRequest) {
       end.setTime(customEnd.getTime());
       break;
     }
-    default:
+    default: // today
       start = new Date(now);
       start.setHours(0, 0, 0, 0);
   }
 
-  // ⚠️ BARCHA SO'ROVLARDA storeId
-  const [
-    sales,
-    topProducts,
-    voidedCount,
-    refundSummary,
-    lowStockProducts,
-  ] = await Promise.all([
-    // 1. Savdolar
+  const [sales, topProducts, voidedCount, refundSummary, lowStockProducts] = await Promise.all([
     prisma.sale.findMany({
-      where: {
-        storeId,                                              // ← storeId
-        createdAt: { gte: start, lte: end },
-        status: "COMPLETED",
-      },
+      where: { createdAt: { gte: start, lte: end }, status: "COMPLETED" },
       select: {
         id: true,
         total: true,
@@ -104,73 +66,34 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { createdAt: "asc" },
     }),
-
-    // 2. Eng ko'p sotilgan mahsulotlar
     prisma.saleItem.groupBy({
       by: ["productId", "name"],
-      where: {
-        sale: {
-          storeId,                                            // ← storeId
-          createdAt: { gte: start, lte: end },
-          status: "COMPLETED",
-        },
-      },
+      where: { sale: { createdAt: { gte: start, lte: end }, status: "COMPLETED" } },
       _sum: { quantity: true, total: true },
       orderBy: { _sum: { total: "desc" } },
       take: 10,
     }),
-
-    // 3. Bekor qilingan savdolar
-    prisma.sale.count({
-      where: {
-        storeId,                                              // ← storeId
-        createdAt: { gte: start, lte: end },
-        status: "VOIDED",
-      },
-    }),
-
-    // 4. Qaytarishlar
+    prisma.sale.count({ where: { createdAt: { gte: start, lte: end }, status: "VOIDED" } }),
     prisma.refund.aggregate({
-      where: {
-        storeId,                                              // ← storeId
-        createdAt: { gte: start, lte: end },
-      },
+      where: { createdAt: { gte: start, lte: end } },
       _count: { id: true },
       _sum: { amount: true },
     }),
-
-    // 5. Kam qoldiq
     prisma.product.findMany({
-      where: {
-        storeId,                                              // ← storeId
-        active: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        stock: true,
-        lowStockThreshold: true,
-        sku: true,
-        category: true,
-      },
+      where: { active: true },
+      select: { id: true, name: true, stock: true, lowStockThreshold: true, sku: true, category: true },
       orderBy: { stock: "asc" },
       take: 100,
     }),
   ]);
 
-  const lowStock = lowStockProducts.filter(
-    (p) => p.stock <= p.lowStockThreshold
-  );
+  const lowStock = lowStockProducts.filter((p) => p.stock <= p.lowStockThreshold);
 
   const byDay: Record<string, { revenue: number; transactions: number }> = {};
   let totalRevenue = 0;
   let totalTips = 0;
   let totalGrossProfit = 0;
-  const paymentBreakdown: Record<string, number> = {
-    CASH: 0,
-    CARD: 0,
-    OTHER: 0,
-  };
+  const paymentBreakdown: Record<string, number> = { CASH: 0, CARD: 0, OTHER: 0 };
   const uniqueCustomers = new Set<string>();
 
   for (const sale of sales) {
@@ -185,25 +108,17 @@ export async function GET(req: NextRequest) {
 
     for (const item of sale.items) {
       const itemRevenue = parseFloat(item.total.toString());
-      const unitCost = item.product?.cost
-        ? parseFloat(item.product.cost.toString())
-        : 0;
+      const unitCost = item.product?.cost ? parseFloat(item.product.cost.toString()) : 0;
       totalGrossProfit += itemRevenue - unitCost * item.quantity;
     }
 
-    const lines = sale.paymentLines as Array<{
-      method: string;
-      amount: number;
-    }> | null;
-
+    const lines = sale.paymentLines as Array<{ method: string; amount: number }> | null;
     if (lines && lines.length > 0) {
       for (const line of lines) {
-        paymentBreakdown[line.method] =
-          (paymentBreakdown[line.method] ?? 0) + line.amount;
+        paymentBreakdown[line.method] = (paymentBreakdown[line.method] ?? 0) + line.amount;
       }
     } else {
-      paymentBreakdown[sale.paymentMethod] =
-        (paymentBreakdown[sale.paymentMethod] ?? 0) + rev;
+      paymentBreakdown[sale.paymentMethod] = (paymentBreakdown[sale.paymentMethod] ?? 0) + rev;
     }
   }
 

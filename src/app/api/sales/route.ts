@@ -27,36 +27,14 @@ const saleSchema = z.object({
   discountType: z.enum(["fixed", "percent"]).default("fixed"),
   note: z.string().optional(),
   customerId: z.string().optional(),
+  /** Loyalty points to redeem as discount (0 = no redemption) */
   loyaltyPointsUsed: z.number().int().min(0).default(0),
 });
-
-// ═══════════════════════════════════════════════════════════
-// STORE'NI OLISH
-// ═══════════════════════════════════════════════════════════
-async function getStoreId(): Promise<string | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return null;
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { storeId: true },
-  });
-
-  return user?.storeId ?? null;
-}
 
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const storeId = await getStoreId();
-  if (!storeId) {
-    return NextResponse.json(
-      { error: "Foydalanuvchi do'konga biriktirilmagan" },
-      { status: 400 }
-    );
   }
 
   const body = await req.json();
@@ -65,32 +43,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const {
-    items,
-    paymentMethod,
-    amountTendered,
-    paymentLines,
-    tipAmount,
-    taxRate,
-    discountAmount,
-    discountType,
-    note,
-    customerId,
-    loyaltyPointsUsed,
-  } = parsed.data;
+  const { items, paymentMethod, amountTendered, paymentLines, tipAmount, taxRate, discountAmount, discountType, note, customerId, loyaltyPointsUsed } =
+    parsed.data;
 
-  // Derive primary paymentMethod from largest split-tender line
+  // Derive primary paymentMethod from largest split-tender line (if split mode)
   const effectiveMethod: "CASH" | "CARD" | "OTHER" =
     paymentLines && paymentLines.length > 0
       ? (paymentLines.reduce((a, b) => (a.amount >= b.amount ? a : b)).method as "CASH" | "CARD" | "OTHER")
       : paymentMethod;
 
-  // ⚠️ LOYALTY SETTINGS — FAQAT SHU DO'KON
+  // Load loyalty settings if customer is attached
   let loyaltySettings: { enabled: boolean; earnRate: number; redeemValue: number } | null = null;
   if (customerId) {
-    const settings = await prisma.businessSettings.findFirst({
-      where: { storeId },  // ← storeId
-    });
+    const settings = await prisma.businessSettings.findUnique({ where: { id: "singleton" } });
     if (settings?.loyaltyEnabled) {
       loyaltySettings = {
         enabled: true,
@@ -103,20 +68,20 @@ export async function POST(req: NextRequest) {
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const discountValue =
     discountType === "percent" ? (subtotal * discountAmount) / 100 : Math.min(discountAmount, subtotal);
-  const loyaltyDiscount =
-    loyaltySettings && loyaltyPointsUsed > 0
-      ? loyaltyPointsUsed / loyaltySettings.redeemValue
-      : 0;
+  // Loyalty redemption discount (points / redeemValue = $ discount)
+  const loyaltyDiscount = loyaltySettings && loyaltyPointsUsed > 0
+    ? loyaltyPointsUsed / loyaltySettings.redeemValue
+    : 0;
   const totalDiscount = discountValue + loyaltyDiscount;
   const taxAmt = (subtotal - totalDiscount) * taxRate;
   const total = subtotal - totalDiscount + taxAmt + (tipAmount ?? 0);
 
-  const paidTotal =
-    paymentLines && paymentLines.length > 0
-      ? paymentLines.reduce((s, p) => s + p.amount, 0)
-      : (amountTendered ?? 0);
+  // Change due: cash single-method or from split lines total
+  const paidTotal = paymentLines && paymentLines.length > 0
+    ? paymentLines.reduce((s, p) => s + p.amount, 0)
+    : (amountTendered ?? 0);
   const changeDue =
-    effectiveMethod === "CASH" || paymentLines?.some((p) => p.method === "CASH")
+    (effectiveMethod === "CASH" || (paymentLines?.some((p) => p.method === "CASH")))
       ? Math.max(0, paidTotal - total)
       : undefined;
 
@@ -124,7 +89,6 @@ export async function POST(req: NextRequest) {
   const sale = await prisma.$transaction(async (tx: any) => {
     const created = await tx.sale.create({
       data: {
-        storeId,                                    // ← STORE ID
         userId: session.user.id,
         customerId: customerId || undefined,
         subtotal,
@@ -152,72 +116,43 @@ export async function POST(req: NextRequest) {
       include: { items: true },
     });
 
-    // ⚠️ FAQAT SHU DO'KON MAHSULOTLARIDAN STOCK KAMAYTIRISH
+    // Decrement stock
     for (const item of items) {
-      await tx.product.updateMany({
-        where: { id: item.productId, storeId },       // ← storeId
+      await tx.product.update({
+        where: { id: item.productId },
         data: { stock: { decrement: item.quantity } },
       });
     }
 
-    // ⚠️ LOYALTY — FAQAT SHU DO'KON MIJOZI
+    // Loyalty points: deduct redeemed, award earned
     if (customerId && loyaltySettings?.enabled) {
-      // Mijoz shu do'konga tegishli ekanligini tekshirish
-      const customer = await tx.customer.findFirst({
-        where: { id: customerId, storeId },         // ← storeId
-        select: { id: true },
-      });
+      const earnedPoints = Math.floor(total * loyaltySettings.earnRate);
+      type LogEntry = { customerId: string; saleId: string; delta: number; type: "EARN" | "REDEEM" | "ADJUST"; note: string };
+      const logs: LogEntry[] = [];
 
-      if (customer) {
-        const earnedPoints = Math.floor(total * loyaltySettings.earnRate);
-        type LogEntry = {
-          storeId: string;
-          customerId: string;
-          saleId: string;
-          delta: number;
-          type: "EARN" | "REDEEM" | "ADJUST";
-          note: string;
-        };
-        const logs: LogEntry[] = [];
-
-        if (loyaltyPointsUsed > 0) {
-          await tx.customer.update({
-            where: { id: customerId },
-            data: { loyaltyPoints: { decrement: loyaltyPointsUsed } },
-          });
-          logs.push({
-            storeId,                                 // ← storeId
-            customerId,
-            saleId: created.id,
-            delta: -loyaltyPointsUsed,
-            type: "REDEEM" as const,
-            note: `Redeemed ${loyaltyPointsUsed} pts`,
-          });
-        }
-        if (earnedPoints > 0) {
-          await tx.customer.update({
-            where: { id: customerId },
-            data: { loyaltyPoints: { increment: earnedPoints } },
-          });
-          logs.push({
-            storeId,                                 // ← storeId
-            customerId,
-            saleId: created.id,
-            delta: earnedPoints,
-            type: "EARN" as const,
-            note: `Earned on sale`,
-          });
-        }
-        for (const log of logs) {
-          await tx.loyaltyLog.create({ data: log });
-        }
+      if (loyaltyPointsUsed > 0) {
+        await tx.customer.update({
+          where: { id: customerId },
+          data: { loyaltyPoints: { decrement: loyaltyPointsUsed } },
+        });
+        logs.push({ customerId, saleId: created.id, delta: -loyaltyPointsUsed, type: "REDEEM" as const, note: `Redeemed ${loyaltyPointsUsed} pts` });
+      }
+      if (earnedPoints > 0) {
+        await tx.customer.update({
+          where: { id: customerId },
+          data: { loyaltyPoints: { increment: earnedPoints } },
+        });
+        logs.push({ customerId, saleId: created.id, delta: earnedPoints, type: "EARN" as const, note: `Earned on sale` });
+      }
+      for (const log of logs) {
+        await tx.loyaltyLog.create({ data: log });
       }
     }
 
     return created;
   });
 
-  // Fire plugin hook
+  // Fire plugin hook (non-blocking — errors are caught inside fire())
   pluginRegistry.fire("onSaleComplete", {
     saleId: sale.id,
     total: parseFloat(sale.total.toString()),
@@ -232,7 +167,7 @@ export async function POST(req: NextRequest) {
     customerId: sale.customerId ?? null,
     paymentMethod: sale.paymentMethod,
     loyaltyPointsUsed: loyaltyPointsUsed || 0,
-  }).catch(() => {});
+  }).catch(() => {/* handled inside fire() */});
 
   return NextResponse.json({ sale }, { status: 201 });
 }

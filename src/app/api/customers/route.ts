@@ -4,35 +4,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
-// ═══════════════════════════════════════════════════════════
-// STORE'NI OLISH
-// ═══════════════════════════════════════════════════════════
-async function getCurrentStoreId(): Promise<string | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return null;
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { storeId: true },
-  });
-
-  return user?.storeId ?? null;
-}
-
 // ---- GET /api/customers?q=search&page=1&limit=20 ----
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const storeId = await getCurrentStoreId();
-  if (!storeId) {
-    return NextResponse.json(
-      { error: "Foydalanuvchi do'konga biriktirilmagan" },
-      { status: 400 }
-    );
-  }
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = req.nextUrl;
   const q = searchParams.get("q") ?? "";
@@ -40,19 +15,15 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") ?? "20");
   const skip = (page - 1) * limit;
 
-  // ⚠️ FAQAT SHU DO'KON MIJOZLARI
-  const where = {
-    storeId,
-    ...(q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" as const } },
-            { phone: { contains: q, mode: "insensitive" as const } },
-            { email: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
-  };
+  const where = q
+    ? {
+        OR: [
+          { name: { contains: q, mode: "insensitive" } as const },
+          { phone: { contains: q, mode: "insensitive" } as const },
+          { email: { contains: q, mode: "insensitive" } as const },
+        ],
+      }
+    : undefined;
 
   const [customers, total] = await Promise.all([
     prisma.customer.findMany({
@@ -60,15 +31,7 @@ export async function GET(req: NextRequest) {
       orderBy: { name: "asc" },
       skip,
       take: limit,
-      select: {
-        id: true,
-        name: true,
-        phone: true,
-        email: true,
-        loyaltyPoints: true,
-        notes: true,
-        createdAt: true,
-      },
+      select: { id: true, name: true, phone: true, email: true, loyaltyPoints: true, notes: true, createdAt: true },
     }),
     prisma.customer.count({ where }),
   ]);
@@ -77,10 +40,7 @@ export async function GET(req: NextRequest) {
   const customerIds = customers.map((c) => c.id);
   const salesStats = await prisma.sale.groupBy({
     by: ["customerId"],
-    where: {
-      customerId: { in: customerIds },
-      status: "COMPLETED",
-    },
+    where: { customerId: { in: customerIds }, status: "COMPLETED" },
     _sum: { total: true },
     _max: { createdAt: true },
     _count: { id: true },
@@ -117,48 +77,26 @@ const createSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const storeId = await getCurrentStoreId();
-  if (!storeId) {
-    return NextResponse.json(
-      { error: "Foydalanuvchi do'konga biriktirilmagan" },
-      { status: 400 }
-    );
-  }
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.flatten() },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
   const { name, phone, email, notes } = parsed.data;
 
   try {
     const customer = await prisma.customer.create({
-      data: {
-        name,
-        phone: phone || null,
-        email: email || null,
-        notes: notes || null,
-        storeId,  // ← STORE ID QO'SHILDI
-      },
+      data: { name, phone: phone || null, email: email || null, notes: notes || null },
       select: { id: true, name: true, phone: true, email: true },
     });
     return NextResponse.json({ customer }, { status: 201 });
   } catch (e: unknown) {
     const err = e as { code?: string };
     if (err.code === "P2002") {
-      return NextResponse.json(
-        { error: "Phone or email already in use" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "Phone or email already in use" }, { status: 409 });
     }
     throw e;
   }

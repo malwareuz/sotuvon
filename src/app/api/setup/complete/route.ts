@@ -14,14 +14,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Guard: only allow if setup not yet complete
   try {
     const { prisma } = await import("@/lib/db");
-    const existing = await prisma.businessSettings.findFirst({
+    const existing = await prisma.businessSettings.findUnique({
+      where: { id: "singleton" },
       select: { setupComplete: true },
     });
     if (existing?.setupComplete) {
-      return NextResponse.json(
-        { error: "Setup already complete" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Setup already complete" }, { status: 403 });
     }
   } catch {
     // DB not ready
@@ -30,45 +28,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.flatten().fieldErrors },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const {
-    businessName,
-    currency,
-    currencyDecimals,
-    taxRate,
-    taxName,
-    receiptFooter,
-  } = parsed.data;
+  const { businessName, currency, currencyDecimals, taxRate, taxName, receiptFooter } = parsed.data;
 
   try {
     const { prisma } = await import("@/lib/db");
 
-    // ═══════════════════════════════════════════════════════════
-    // STORE YARATISH (TENANT YO'Q)
-    // ═══════════════════════════════════════════════════════════
-    let store = await prisma.store.findFirst();
-
-    if (!store) {
-      store = await prisma.store.create({
-        data: {
-          name: businessName,
-          slug: "default",
-        },
-      });
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // BUSINESS SETTINGS — storeId bo'yicha upsert
-    // ═══════════════════════════════════════════════════════════
     await prisma.businessSettings.upsert({
-      where: { storeId: store.id },               // ← storeId bo'yicha
+      where: { id: "singleton" },
       create: {
-        storeId: store.id,                        // ← storeId
+        id: "singleton",
         name: businessName,
         currency,
         currencyDecimals,
@@ -89,18 +60,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     const response = NextResponse.json({ ok: true });
-
+    // Set a cookie so middleware knows setup is complete without a DB round-trip
     response.cookies.set("olgax-setup-complete", "1", {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 365,
+      maxAge: 60 * 60 * 24 * 365, // 1 year
     });
-
     return response;
   } catch (err) {
-    const msg =
-      err instanceof Error ? err.message : "Failed to save settings";
+    const msg = err instanceof Error ? err.message : "Failed to save settings";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

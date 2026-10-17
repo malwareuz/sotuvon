@@ -1,35 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
 
-// ═══════════════════════════════════════════════════════════
-// STORE'NI OLISH
-// ═══════════════════════════════════════════════════════════
-async function getCurrentStoreId(): Promise<string> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  
-  if (!session?.user) {
-    throw new Error("Avtorizatsiya talab qilinadi");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { storeId: true },
-  });
-
-  if (!user?.storeId) {
-    throw new Error("Foydalanuvchi do'konga biriktirilmagan");
-  }
-
-  return user.storeId;
-}
-
-// ═══════════════════════════════════════════════════════════
-// UPDATE SETTINGS
-// ═══════════════════════════════════════════════════════════
 export async function updateSettings(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const taxRatePercent = parseFloat(raw.taxRate as string) || 0;
@@ -65,16 +38,9 @@ export async function updateSettings(formData: FormData) {
     ? { ...shared, storageSecretKey: newSecretKey }
     : shared;
 
-  // ⚠️ STORE ID NI OLISH
-  const storeId = await getCurrentStoreId();
-
   await prisma.businessSettings.upsert({
     where: { id: "singleton" },
-    create: {
-      ...shared,
-      storageSecretKey: newSecretKey || null,
-      storeId,  // ← STORE ID QO'SHILDI
-    },
+    create: { ...shared, storageSecretKey: newSecretKey || null },
     update: updatePayload,
   });
 
