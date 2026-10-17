@@ -11,17 +11,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Guard: only allow if setup not yet complete
   try {
     const { prisma } = await import("@/lib/db");
-    const settings = await prisma.businessSettings.findUnique({
-      where: { id: "singleton" },
+
+    // ⚠️ SINGLETON EMAS — findFirst()
+    const settings = await prisma.businessSettings.findFirst({
       select: { setupComplete: true },
     });
+
     if (settings?.setupComplete) {
       return NextResponse.json(
         { error: "Setup already complete" },
         { status: 403 }
       );
     }
-    const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
+
+    const adminCount = await prisma.user.count({
+      where: { role: "ADMIN" },
+    });
+
     if (adminCount > 0) {
       return NextResponse.json(
         { error: "An admin account already exists" },
@@ -58,15 +64,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // Better Auth orqali user yaratish (parol hash qilinadi)
+    // Better Auth orqali user yaratish
     const result = await (auth.api as any).signUpEmail({
-      body: {
-        name,
-        email,
-        password,
-        // ⚠️ MUHIM: storeId ni signUpEmail ga ham qo'shish
-        // Agar Better Auth additional fields ni qo'llab-quvvatlasa
-      },
+      body: { name, email, password },
     });
 
     if (!result) {

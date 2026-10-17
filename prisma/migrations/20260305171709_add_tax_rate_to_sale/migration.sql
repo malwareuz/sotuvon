@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Sale" ADD COLUMN     "taxRate" DECIMAL(5,2) NOT NULL DEFAULT 0;
