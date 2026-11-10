@@ -55,7 +55,6 @@ export default async function RootLayout({
           {children}
           <Toaster richColors toastOptions={{ className: "text-sm" }} />
         </NextIntlClientProvider>
-        {/* Register service worker for PWA offline support */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

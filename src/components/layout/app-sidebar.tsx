@@ -72,12 +72,20 @@ export function AppSidebar({ user, onLinkClick }: AppSidebarProps) {
           alt="Olgax POS"
           className="h-9 w-9 rounded-xl object-contain shrink-0"
         />
-        <div className="flex flex-col leading-none">
-          <span className="text-sm font-bold tracking-tight text-sidebar-foreground">Sotuv</span>
-          <span className="text-[10px] font-semibold tracking-widest uppercase text-sidebar-primary">
-            On
-          </span>
-        </div>
+        <div className="flex-col leading-none">
+  <span
+    className="text-xl font-bold text-sidebar-foreground"
+    style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
+  >
+    Sotuv
+  </span>
+  <span
+    className="text-xl font-bold text-blue-700"
+    style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
+  >
+    On
+  </span>
+</div>
       </div>
 
       {/* Nav */}
