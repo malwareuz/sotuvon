@@ -67,11 +67,11 @@ export function AppSidebar({ user, onLinkClick }: AppSidebarProps) {
       {/* Brand */}
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+       <Link href={'/pos'}> <img
           src="/android-chrome-192x192.png"
           alt="Olgax POS"
           className="h-9 w-9 rounded-xl object-contain shrink-0"
-        />
+        /></Link>
         <div className="flex-col leading-none">
   <span
     className="text-xl font-bold text-sidebar-foreground"

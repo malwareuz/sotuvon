@@ -1,28 +1,43 @@
+
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
+import SplashScreen from "@/components/layout/SplashScreen";
 import "./globals.css";
 
-/** RTL script locales — extend this list as new languages are added. */
 const RTL_LOCALES = ["ar", "he", "fa", "ur"];
 
 export const metadata: Metadata = {
   title: {
     default: "SotuvOn",
-    template: "%s | SotuvOn",
+    template: " SotuvOn | %s",
   },
-  description: "Open-source, offline-capable Point of Sale for small businesses",
+  description:
+    "Open-source, offline-capable Point of Sale for small businesses",
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.ico" },
+      {
+        url: "/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+      {
+        url: "/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: "/favicon.ico",
+      },
     ],
-    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    apple: {
+      url: "/apple-touch-icon.png",
+      sizes: "180x180",
+    },
     shortcut: "/favicon.ico",
   },
   appleWebApp: {
@@ -44,17 +59,39 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [messages, locale] = await Promise.all([getMessages(), getLocale()]);
+  const [messages, locale] = await Promise.all([
+    getMessages(),
+    getLocale(),
+  ]);
+
   const dir = RTL_LOCALES.includes(locale) ? "rtl" : "ltr";
+
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={dir}
+      suppressHydrationWarning
+    >
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
+          {/* Futuristic startup animation */}
+          <SplashScreen />
+
+          {/* Main application */}
           {children}
-          <Toaster richColors toastOptions={{ className: "text-sm" }} />
+
+          {/* Notifications */}
+          <Toaster
+            richColors
+            toastOptions={{
+              className: "text-sm",
+            }}
+          />
         </NextIntlClientProvider>
+
+        {/* Service Worker Registration */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
