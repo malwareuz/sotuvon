@@ -1,0 +1,10 @@
+{
+  "id": "com.olgax.example-plugin",
+  "name": "Example Plugin",
+  "version": "1.0.0",
+  "description": "A no-op example plugin demonstrating the SotuvOn plugin API.",
+  "author": "SotuvOn Community",
+  "hooks": ["onSaleComplete", "onProductUpdate"],
+  "permissions": [],
+  "enabled": true
+}
