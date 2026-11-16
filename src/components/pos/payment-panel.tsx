@@ -19,15 +19,18 @@ interface PaymentPanelProps {
 }
 
 const TIP_PRESETS = [
-  { label: "10%", value: 10 },
-  { label: "15%", value: 15 },
-  { label: "20%", value: 20 },
+  { label: "0.5%", value: 0.5 },
+ 
+  
+  { label: "0.1%", value: 0.1 },
+   { label: "1%", value: 1 },
 ];
 
 const PAYMENT_METHODS: PaymentMethod[] = ["CASH", "CARD", "OTHER"];
 
 export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, customerId }: PaymentPanelProps) {
   const t = useTranslations("pos");
+  
   const router = useRouter();
   const formatCurrency = useFormatCurrency();
   const {
@@ -163,7 +166,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
 
       if (!res.ok) {
         const resp = await res.json();
-        throw new Error(resp.error ?? "Failed to complete sale");
+        throw new Error(resp.error ?? `${t("Failed_to_complete_sale")}`);
       }
 
       const resp = await res.json();
@@ -176,7 +179,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : `${t("Unknown_error")}`);
     } finally {
       setLoading(false);
     }
@@ -209,17 +212,17 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
         <button
           onClick={handleHoldOrder}
           disabled={isEmpty || holdLoading}
-          className="flex-1 flex items-center justify-center gap-1 rounded-md border py-2 text-xs font-medium text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:pointer-events-none transition-colors"
+          className="flex-1 flex items-center justify-center  cursor-pointer gap-1 rounded-md border py-2 text-xs font-medium text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:pointer-events-none transition-colors"
         >
           <PauseCircle className="h-3.5 w-3.5" />
           {holdLoading ? "..." : t("hold")}
         </button>
         <button
           onClick={onHoldOrders}
-          className="flex-1 flex items-center justify-center gap-1 rounded-md border py-2 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+          className="flex-1 flex items-center justify-center  cursor-pointer gap-1 rounded-md border py-2 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
         >
           <ClipboardList className="h-3.5 w-3.5" />
-          Recall
+          {t("Recall")}
         </button>
       </div>
 
@@ -227,13 +230,13 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
       {!isEmpty && (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Tip</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("Tip")}</span>
             {tipAmount > 0 && (
               <button
                 onClick={() => { setTipAmount(0); setCustomTip(""); }}
-                className="text-xs text-muted-foreground hover:text-destructive"
+                className="text-xs text-muted-foreground cursor-pointer hover:text-destructive"
               >
-                Remove
+                {t("Remove")}
               </button>
             )}
           </div>
@@ -242,10 +245,10 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
               <button
                 key={p.label}
                 onClick={() => handleTipPreset(p.value)}
-                className={
-                  activeTipPct === p.value && customTip === ""
-                    ? "flex-1 rounded-md border-2 border-primary bg-primary/10 py-1.5 text-xs font-semibold text-primary"
-                    : "flex-1 rounded-md border py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+                className={ 
+                   activeTipPct === p.value && customTip === ""
+                    ? "flex-1 rounded-md  cursor-pointer border-2 border-primary bg-primary/10 py-1.5 text-xs font-semibold text-primary"
+                    : "flex-1 rounded-md  cursor-pointer border py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
                 }
               >
                 {p.label}
@@ -268,7 +271,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
       {!isEmpty && (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Tax</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("Tax")}</span>
             <div className="flex items-center gap-2">
               <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
                 <input
@@ -284,7 +287,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
                   }}
                   className="h-3 w-3 accent-primary"
                 />
-                Tax Exempt
+                {t("Tax_Exempt")}
               </label>
               <button
                 onClick={() => setShowTaxEdit((v) => !v)}
@@ -332,9 +335,9 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
-              <Star className="h-3 w-3 text-yellow-500" /> Loyalty Points
+              <Star className="h-3 w-3 text-yellow-500" /> {t("Loyalty_Points")}
             </span>
-            <span className="text-xs font-semibold">{loyaltyInfo.points} pts available</span>
+            <span className="text-xs font-semibold">{loyaltyInfo.points} {t("pts_available")} </span>
           </div>
           <div className="flex items-center gap-2">
             <input
@@ -362,7 +365,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
       {/* Payment method / split toggle */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">Payment</span>
+          <span className="text-xs font-medium text-muted-foreground"> {t("Payment")} </span>
           <button
             onClick={() => {
               if (splitMode) {
@@ -374,10 +377,10 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
                 setSplitInput((prev) => ({ ...prev, [paymentMethod]: String(tot.toFixed(2)) }));
               }
             }}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+            className="flex items-center cursor-pointer gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
           >
-            <SplitSquareHorizontal className="h-3.5 w-3.5" />
-            {splitMode ? "Single" : "Split"}
+            <SplitSquareHorizontal className="h-3.5 w-3.5 cursor-pointer" />
+            {splitMode ? `${t("Single")}` : "Split"}
           </button>
         </div>
 
@@ -400,12 +403,12 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
                     value={splitInput[method]}
                     onChange={(e) => handleSplitInput(method, e.target.value)}
                     placeholder="0.00"
-                    className="flex-1 rounded-md border px-2 py-1.5 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="flex-1 rounded-md cursor-pointer border px-2 py-1.5 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                   {line && (
                     <button
                       onClick={() => { removePaymentLine(method); setSplitInput((prev) => ({ ...prev, [method]: "" })); }}
-                      className="text-muted-foreground hover:text-destructive"
+                      className="text-muted-foreground cursor-pointer hover:text-destructive"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -415,12 +418,12 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
             })}
             <div className="flex justify-between text-xs pt-1">
               <span className="text-muted-foreground">
-                Remaining: <span className={splitRemaining > 0 ? "text-destructive font-semibold" : "text-green-600 font-semibold"}>
+                {t("Remaining")}: <span className={splitRemaining > 0 ? "text-destructive font-semibold" : "text-green-600 font-semibold"}>
                   {formatCurrency(splitRemaining)}
                 </span>
               </span>
               {change > 0 && (
-                <span className="text-green-600 font-medium">Change: {formatCurrency(change)}</span>
+                <span className="text-green-600 font-medium">{t("Change")}: {formatCurrency(change)}</span>
               )}
             </div>
           </div>
@@ -445,7 +448,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
 
             {paymentMethod === "CASH" && (
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Amount Tendered</label>
+                <label className="text-xs text-muted-foreground">{t("Amount_Tendered")}</label>
                 <input
                   type="number"
                   min={0}
@@ -457,7 +460,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
                 />
                 {change > 0 && (
                   <p className="text-sm text-green-600 font-medium">
-                    Change: {formatCurrency(change)}
+                    {t("Change")}: {formatCurrency(change)}
                   </p>
                 )}
               </div>
@@ -470,20 +473,20 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
       {!isEmpty && (
         <div className="rounded-md bg-muted/40 px-3 py-2 space-y-1 text-xs">
           <div className="flex justify-between text-muted-foreground">
-            <span>Subtotal</span>
+            <span>{t("Subtotal")}</span>
             <span>{formatCurrency(subtotal())}</span>
           </div>
           {discountValue() > 0 && (
             <div className="flex justify-between text-muted-foreground">
-              <span>Discount</span>
-              <span>âˆ’{formatCurrency(discountValue())}</span>
+              <span>{t("Discount")}</span>
+              <span>...{formatCurrency(discountValue())}</span>
             </div>
           )}
           {sub > 0 && (
             <div className="relative flex justify-between text-muted-foreground">
               <button
                 onClick={() => setShowTaxEdit(!showTaxEdit)}
-                className="flex items-center gap-1.5 hover:text-foreground transition-colors group"
+                className="flex items-center  cursor-pointer gap-1.5 hover:text-foreground transition-colors group"
                 title="Edit tax rate"
               >
                 <span>Tax</span>
@@ -506,7 +509,7 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
                   <div className="absolute left-0 bottom-full mb-2 w-52 rounded-lg border border-border bg-popover p-3 shadow-xl z-50 ring-1 ring-border/10 animate-in fade-in zoom-in-95">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-semibold text-foreground">Tax Rate Override</p>
+                        <p className="text-xs font-semibold text-foreground">{t("Tax_Rate_Override")}</p>
                         <button onClick={() => setShowTaxEdit(false)} className="text-muted-foreground hover:text-foreground">
                           <X className="h-3.5 w-3.5" />
                         </button>
@@ -543,26 +546,26 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
                             }
                           }}
                           className="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md"
-                        >Set</button>
+                        >{t("Set")}</button>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => { setTaxRate(0); setShowTaxEdit(false); }}
-                          className={`flex items-center justify-center gap-1 rounded border py-1.5 text-[10px] transition-colors ${
+                          className={`flex items-center justify-center gap-1 rounded cursor-pointer border py-1.5 text-[10px] transition-colors ${
                             taxRateOverride === 0 
                               ? "bg-destructive/10 text-destructive border-destructive/20" 
                               : "bg-muted/50 hover:bg-destructive/10 hover:text-destructive"
                           }`}
                         >
-                          <X className="h-3 w-3" /> Exempt
+                          <X className="h-3 w-3" /> {t("Exempt")}
                         </button>
                         <button
                           onClick={() => { setTaxRate(null); setShowTaxEdit(false); }}
                           disabled={taxRateOverride === null}
-                          className="flex items-center justify-center gap-1 rounded border bg-muted/50 py-1.5 text-[10px] hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center justify-center cursor-pointer gap-1 rounded border bg-muted/50 py-1.5 text-[10px] hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <RotateCcw className="h-3 w-3" /> Reset
+                          <RotateCcw className="h-3 w-3" /> {t("Reset")}
                         </button>
                       </div>
                     </div>
@@ -573,12 +576,12 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
           )}
           {tipAmount > 0 && (
             <div className="flex justify-between text-muted-foreground">
-              <span>Tip</span>
+              <span>{t("Tip")}</span>
               <span>{formatCurrency(tipAmount)}</span>
             </div>
           )}
           <div className="flex justify-between font-semibold text-foreground border-t pt-1 mt-1">
-            <span>Total</span>
+            <span>{t("Total")}</span>
             <span>{formatCurrency(tot)}</span>
           </div>
         </div>
@@ -591,16 +594,16 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
         data-charge-btn
         onClick={handleCompleteSale}
         disabled={isEmpty || loading || (splitMode && splitRemaining > 0.005)}
-        className="w-full rounded-md bg-primary py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:pointer-events-none disabled:opacity-50"
+        className="w-full rounded-md cursor-pointer bg-primary py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:pointer-events-none disabled:opacity-50"
       >
-        {loading ? "Processingâ€¦" : `${t("checkout")} ${formatCurrency(tot)}`}
+        {loading ? `${t("prosessing")}` : `${t("checkout")} ${formatCurrency(tot)}`}
       </button>
 
       {/* Void / Clear */}
       {!isEmpty && (
         <button
           onClick={onClear}
-          className="w-full rounded-md border py-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="w-full rounded-md cursor-pointer border py-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
         >
           {t("void")}
         </button>

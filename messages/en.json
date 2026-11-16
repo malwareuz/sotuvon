@@ -6,7 +6,9 @@
     "customers": "Customers",
     "suppliers": "Suppliers",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "Signing_out": "Signing out...",
+"Sign_out": "Sign out"
   },
   "pos": {
     "title": "Point of Sale",
@@ -33,7 +35,31 @@
     "out_of_stock": "Out of stock",
     "loyalty_points": "Loyalty points",
     "redeem_points": "Redeem points",
-    "earn_points": "You'll earn {points} points"
+    "earn_points": "You'll earn {points} points",
+    "Recall": "Recall",
+"Total": "Total",
+"Remove": "Remove",
+"Tax": "Tax",
+"Tax_Exempt": "Tax Exempt",
+"Loyalty_Points": "Loyalty Points",
+"pts_available": "points available",
+"Payment": "Payment",
+"Change": "Change",
+"Amount_Tendered": "Amount Tendered",
+"Subtotal": "Subtotal",
+"Discount": "Discount",
+"Tax_Rate_Override": "Tax Rate Override",
+"Set": "Set",
+"Exempt": "Exempt",
+"Reset": "Reset",
+"Tip": "Tip",
+"prosessing": "Processing...",
+"Single": "Single",
+"Failed_to_complete_sale": "Failed to complete sale",
+"Unknown_error": "Unknown error",
+"Remaining": "Remaining",
+"Held_Orders": "Held Orders",
+"Cart": "Cart"
   },
   "receipt": {
     "receipt": "Receipt",

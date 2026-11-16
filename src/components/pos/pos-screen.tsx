@@ -192,20 +192,20 @@ export function POSScreen() {
         {/* Cart toolbar */}
         <div className="flex items-center justify-between border-b px-4 py-2">
           <span className="text-sm font-semibold text-muted-foreground">
-            Cart {items.length > 0 ? `(${items.length})` : ""}
+            {t("Cart")} {items.length > 0 ? `(${items.length})` : ""}
           </span>
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowHeldOrders(true)}
-              className="flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-accent transition-colors"
+              className="flex items-center gap-1 rounded cursor-pointer border px-2 py-1 text-xs hover:bg-accent transition-colors"
             >
               <ClipboardList className="h-3.5 w-3.5" />
-              Held Orders
+              {t("Held_Orders")}
             </button>
             <button
               onClick={() => setShowShortcuts(true)}
               title="Keyboard shortcuts (?)"
-              className="flex h-6 w-6 items-center justify-center rounded border text-xs hover:bg-accent transition-colors text-muted-foreground"
+              className="flex h-6 w-6 items-center justify-center cursor-pointer rounded border text-xs hover:bg-accent transition-colors text-muted-foreground"
             >
               ?
             </button>

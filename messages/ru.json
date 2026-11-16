@@ -6,7 +6,9 @@
     "customers": "Клиенты",
     "suppliers": "Поставщики",
     "reports": "Отчёты",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "Signing_out": "Выход из системы...",
+"Sign_out": "Выйти из системы"
   },
   "pos": {
     "title": "Точка продаж",
@@ -33,7 +35,31 @@
     "out_of_stock": "Нет в наличии",
     "loyalty_points": "Бонусные баллы",
     "redeem_points": "Использовать баллы",
-    "earn_points": "Вы получите {points} баллов"
+    "earn_points": "Вы получите {points} баллов",
+    "Recall": "Отложенные чеки",
+"Total": "Итого",
+"Remove": "Удалить",
+"Tax": "Налог",
+"Tax_Exempt": "Освобождено от налога",
+"Loyalty_Points": "Бонусные баллы",
+"pts_available": "доступно баллов",
+"Payment": "Оплата",
+"Change": "Сдача",
+"Amount_Tendered": "Внесенная сумма",
+"Subtotal": "Промежуточный итог",
+"Discount": "Скидка",
+"Tax_Rate_Override": "Изменение налоговой ставки",
+"Set": "Установить",
+"Exempt": "Освобождено",
+"Reset": "Сбросить",
+"Tip": "Чаевые",
+"prosessing": "Обработка...",
+"Single": "Один способ",
+"Failed_to_complete_sale": "Не удалось завершить продажу",
+"Unknown_error": "Неизвестная ошибка",
+"Remaining": "Остаток",
+"Held_Orders": "Отложенные заказы",
+"Cart": "Корзина"
   },
   "receipt": {
     "receipt": "Чек",
