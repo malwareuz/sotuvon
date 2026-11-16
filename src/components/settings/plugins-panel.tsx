@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { pluginRegistry, PluginManifest } from "@/lib/plugins";
 import { Puzzle, Power } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const STORAGE_KEY = "olgax_plugin_enabled_map";
 
@@ -21,6 +22,7 @@ function saveEnabledMap(map: Record<string, boolean>) {
 }
 
 export function PluginsPanel() {
+  const t = useTranslations("plugin-panel");
   const [plugins, setPlugins] = useState<PluginManifest[]>([]);
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({});
 
@@ -54,19 +56,25 @@ export function PluginsPanel() {
       <div>
         <h2 className="text-base font-semibold flex items-center gap-2">
           <Puzzle className="h-4 w-4" />
-          Plugins
+          {t("plugins_title")}
         </h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Installed plugins extend POS functionality via hooks. Place plugin folders in{" "}
-          <code className="bg-muted rounded px-1 py-0.5 text-[11px]">/plugins/</code>.
+          {t.rich("plugins_desc", {
+            code: (chunks) => (
+              <code className="bg-muted rounded px-1 py-0.5 text-[11px]">{chunks}</code>
+            ),
+          })}
         </p>
       </div>
 
       {plugins.length === 0 ? (
         <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
           <Puzzle className="h-8 w-8 mx-auto mb-2 opacity-30" />
-          No plugins installed. Drop a plugin folder into{" "}
-          <code className="bg-muted rounded px-1 text-xs">/plugins/</code> and register it in your app.
+          {t.rich("no_plugins", {
+            code: (chunks) => (
+              <code className="bg-muted rounded px-1 text-xs">{chunks}</code>
+            ),
+          })}
         </div>
       ) : (
         <div className="rounded-lg border divide-y overflow-hidden">
@@ -79,7 +87,7 @@ export function PluginsPanel() {
                     v{p.version}
                   </span>
                   {p.author && (
-                    <span className="text-[10px] text-muted-foreground">by {p.author}</span>
+                    <span className="text-[10px] text-muted-foreground">{t("by_author", { author: p.author })}</span>
                   )}
                 </div>
                 {p.description && (
@@ -105,10 +113,10 @@ export function PluginsPanel() {
                     ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
-                aria-label={enabledMap[p.id] ? "Disable plugin" : "Enable plugin"}
+                aria-label={enabledMap[p.id] ? t("disable_plugin") : t("enable_plugin")}
               >
                 <Power className="h-3 w-3" />
-                {enabledMap[p.id] ? "Enabled" : "Disabled"}
+                {enabledMap[p.id] ? t("enabled") : t("disabled")}
               </button>
             </div>
           ))}

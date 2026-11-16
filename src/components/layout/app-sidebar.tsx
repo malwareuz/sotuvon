@@ -126,8 +126,7 @@ export function AppSidebar({ user, onLinkClick }: AppSidebarProps) {
         <button
           onClick={handleSignOut}
           disabled={isSigningOut}
-          className="flex w-full items-center cursor-pointer gap-2 rounded-lg px-2 py-2 text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+className="flex w-full items-center cursor-pointer gap-2 rounded-lg px-2 py-2 text-sm text-sidebar-foreground/60 hover:bg-red-500/10 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"        >
           {isSigningOut ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

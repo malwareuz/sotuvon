@@ -8,6 +8,8 @@ import { updateSettings } from "@/app/actions/settings-actions";
 import { setLocale } from "@/app/actions/locale-actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+
 
 const settingsSchema = z.object({
   name: z.string().min(1, "Business name is required"),
@@ -35,6 +37,7 @@ const settingsSchema = z.object({
   storageSecretKey: z.string().default(""),
   storagePublicUrl: z.string().default(""),
 });
+
 
 // Explicitly type the form values to work around Zod v4 + react-hook-form type inference
 // (Zod v4 .default() and .optional() produce input types of T | undefined, which
@@ -128,6 +131,7 @@ export function SettingsForm({ settings }: Props) {
 
   const storageProvider = watch("storageProvider");
   const currencySymbol = watch("currency") || settings.currency || "$";
+  const t =useTranslations("sett")
 
   async function onSubmit(values: SettingsFormValues) {
     const fd = new FormData();
@@ -137,10 +141,10 @@ export function SettingsForm({ settings }: Props) {
       await updateSettings(fd);
       // Update locale cookie when language changes
       await setLocale(values.language);
-      toast.success("Settings saved successfully");
+      toast.success(`${t("setting")}`);
       router.refresh();
     } catch {
-      toast.error("Failed to save settings. Please try again.");
+      toast.error(`${t("Failed")}`);
     }
   }
 
@@ -174,46 +178,46 @@ export function SettingsForm({ settings }: Props) {
       {/* Business */}
       <section className="space-y-4">
         <h2 className="text-base font-semibold border-b pb-2">Business</h2>
-        {field("Business Name *", "name", { placeholder: "My Store" })}
-        {field("Logo URL", "logoUrl", { type: "url", placeholder: "https://…" })}
+        {field(`${t("Business_Name")}`, "name", { placeholder: `${t("My_Store")}` })}
+        {field(`${t("Logo_URL")}`, "logoUrl", { type: "url", placeholder: "https://…" })}
       </section>
 
       {/* Appearance */}
       <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Appearance</h2>
+        <h2 className="text-base font-semibold border-b pb-2">{t("Appearance")}</h2>
         <div className="grid grid-cols-2 gap-4">
-          {field("Primary Color", "primaryColor", { type: "color" })}
-          {field("Accent Color", "accentColor", { type: "color" })}
+          {field(`${t("Primary_Color")}`, "primaryColor", { type: "color" })}
+          {field(`${t("Accent_Color")}`, "accentColor", { type: "color" })}
         </div>
       </section>
 
       {/* Currency & Tax */}
       <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Currency & Tax</h2>
+        <h2 className="text-base font-semibold border-b pb-2">{t("Currency_&_Tax")}</h2>
         <div className="grid grid-cols-2 gap-4">
-          {field("Currency Symbol", "currency", { placeholder: "$" })}
-          {field("Decimal Places", "currencyDecimals", { type: "number", min: "0", max: "4" })}
+          {field(`${t("symbol")}`, "currency", { placeholder: "$" })}
+          {field(`${t("decimal")}`, "currencyDecimals", { type: "number", min: "0", max: "4" })}
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {field("Tax Rate (%)", "taxRate", { type: "number", step: "0.01", min: "0", max: "100" })}
-          {field("Tax Name", "taxName", { placeholder: "VAT" })}
+          {field(`${t("rate")}`, "taxRate", { type: "number", step: "0.01", min: "0", max: "100" })}
+          {field(`${t("tname")}`, "taxName", { placeholder: "VAT" })}
         </div>
       </section>
 
       {/* Receipt */}
       <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Receipt</h2>
-        {field("Footer Text", "receiptFooter", { placeholder: "Thank you!" })}
+        <h2 className="text-base font-semibold border-b pb-2">{t("Receipt")}</h2>
+        {field(`${t("ftext")}`, "receiptFooter", { placeholder: `${t("tyou")}` })}
       </section>
 
       {/* Language */}
       <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Language</h2>
+        <h2 className="text-base font-semibold border-b pb-2">{t("Language")}</h2>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">Language</label>
+          <label className="text-sm font-medium">{t("Language")}</label>
           <select
             {...register("language")}
-            className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="border-input bg-background cursor-pointer ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             <option value="en">English</option>
             <option value="uz">Uzbekistan</option>            
@@ -225,11 +229,11 @@ export function SettingsForm({ settings }: Props) {
 
       {/* Loyalty */}
       <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Loyalty Program</h2>
+        <h2 className="text-base font-semibold border-b pb-2">{t("lprog")}</h2>
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div>
-            <p className="text-sm font-medium">Enable Loyalty Points</p>
-            <p className="text-xs text-muted-foreground">Let customers earn and redeem points on purchases</p>
+            <p className="text-sm font-medium">{t("epoin")}</p>
+            <p className="text-xs text-muted-foreground">{t("letcust")}</p>
           </div>
           <input
             type="checkbox"
@@ -238,132 +242,147 @@ export function SettingsForm({ settings }: Props) {
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {field(`Earn Rate (pts per ${currencySymbol}1)`, "loyaltyEarnRate", { type: "number", step: "0.01", min: "0", placeholder: "1" })}
-          {field(`Redeem Rate (pts per ${currencySymbol}1 off)`, "loyaltyRedeemValue", { type: "number", step: "1", min: "1", placeholder: "100" })}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Example: Earn Rate = 1, Redeem Rate = 100 → customer earns 1 pt per {currencySymbol}1 spent, and 100 pts = {currencySymbol}1 discount.
-        </p>
+         {field(
+  t("loyalty_earn_rate", { currency: currencySymbol }),
+  "loyaltyEarnRate",
+  { type: "number", step: "0.01", min: "0", placeholder: "1" }
+)}
+{field(
+  t("loyalty_redeem_rate", { currency: currencySymbol }),
+  "loyaltyRedeemValue",
+  { type: "number", step: "1", min: "1", placeholder: "100" }
+)} </div>
+     <p className="text-xs text-muted-foreground">
+  {t("loyalty_example", { currency: currencySymbol })}
+</p>
       </section>
 
       {/* Inventory */}
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Inventory</h2>
-        {field("Low Stock Threshold (default)", "lowStockThreshold", { type: "number", min: "0", step: "1", placeholder: "5" })}
-        <p className="text-xs text-muted-foreground">Products with stock at or below this level will show low-stock alerts.</p>
+     <section className="space-y-4">
+  <h2 className="text-base font-semibold border-b pb-2">{t("inventory_title")}</h2>
+  {field(
+    t("low_stock_threshold"),
+    "lowStockThreshold",
+    { type: "number", min: "0", step: "1", placeholder: "5" }
+  )}
+  <p className="text-xs text-muted-foreground">{t("low_stock_threshold_desc")}</p>
 
-        {/* Low-stock email alert — placeholder UI, actual emails ship in v0.3 */}
-        <div className="rounded-lg border border-dashed p-4 space-y-3 opacity-80">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-medium">Low-Stock Email Alerts</h3>
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-              Coming in v0.3
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Receive an email when a product’s stock drops to or below the threshold above.
-          </p>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <input
-              type="email"
-              disabled
-              placeholder="alert@example.com"
-              className="flex-1 h-9 w-full rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground cursor-not-allowed"
-            />
-            <label className="flex items-center gap-2 cursor-not-allowed opacity-60 shrink-0">
-              <input type="checkbox" disabled className="accent-primary" />
-              <span className="text-sm">Enabled</span>
-            </label>
-          </div>
-        </div>
-      </section>
+  {/* Low-stock email alert — placeholder UI, actual emails ship in v0.3 */}
+  <div className="rounded-lg border border-dashed p-4 space-y-3 opacity-80">
+    <div className="flex items-center gap-2 flex-wrap">
+      <h3 className="text-sm font-medium">{t("low_stock_email_alerts")}</h3>
+      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+        {t("coming_in_v03")}
+      </span>
+    </div>
+    <p className="text-xs text-muted-foreground">
+      {t("low_stock_email_desc")}
+    </p>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <input
+        type="email"
+        disabled
+        placeholder="alert@example.com"
+        className="flex-1 h-9 w-full rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground cursor-not-allowed"
+      />
+      <label className="flex items-center gap-2 cursor-not-allowed opacity-60 shrink-0">
+        <input type="checkbox" disabled className="accent-primary" />
+        <span className="text-sm">{t("enabled")}</span>
+      </label>
+    </div>
+  </div>
+</section>
 
       {/* Image Storage */}
       <section className="space-y-4">
-        <h2 className="text-base font-semibold border-b pb-2">Image Storage</h2>
+        <h2 className="text-base font-semibold border-b pb-2">{t("imgstore")}</h2>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">Storage Provider</label>
+          <label className="text-sm font-medium">{t("storepro")}</label>
           <select
             {...register("storageProvider")}
             className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
-            <option value="local">Local (public/uploads/) — self-hosted only</option>
+            <option value="local">{t("localon")}</option>
             <option value="vercel_blob">Vercel Blob</option>
             <option value="cloudflare_r2">Cloudflare R2</option>
             <option value="s3">AWS S3</option>
           </select>
           <p className="text-xs text-muted-foreground">
-            Where product images are stored after upload.
+            {t("proimg")}
           </p>
         </div>
 
         {storageProvider === "local" && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4 text-sm text-amber-800 dark:text-amber-300">
-            Files are saved to <code className="font-mono bg-amber-100 dark:bg-amber-900 px-1 rounded">public/uploads/</code> on your server.
-            This does <strong>not</strong> work on serverless platforms like Vercel — choose a cloud provider instead.
-          </div>
-        )}
-
+  <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4 text-sm text-amber-800 dark:text-amber-300">
+    {t.rich("local_warning", {
+      code: (chunks) => (
+        <code className="font-mono bg-amber-100 dark:bg-amber-900 px-1 rounded">{chunks}</code>
+      ),
+      strong: (chunks) => <strong>{chunks}</strong>,
+    })}
+  </div>
+)}
         {storageProvider === "vercel_blob" && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 p-4 space-y-2 text-sm">
-            <p className="font-medium text-blue-800 dark:text-blue-300">Vercel Blob Setup</p>
-            <p className="text-muted-foreground">
-              Set the{" "}
-              <code className="font-mono bg-muted px-1 rounded">BLOB_READ_WRITE_TOKEN</code>{" "}
-              environment variable in your Vercel project or <code className="font-mono bg-muted px-1 rounded">.env</code> file.
-              No other configuration is needed.
-            </p>
-          </div>
-        )}
+  <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 p-4 space-y-2 text-sm">
+    <p className="font-medium text-blue-800 dark:text-blue-300">{t("vercel_setup_title")}</p>
+    <p className="text-muted-foreground">
+      {t.rich("vercel_setup_desc", {
+        code: (chunks) => (
+          <code className="font-mono bg-muted px-1 rounded">{chunks}</code>
+        ),
+      })}
+    </p>
+  </div>
+)}
 
-        {(storageProvider === "cloudflare_r2" || storageProvider === "s3") && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {field("Bucket Name", "storageBucket", { placeholder: "my-bucket" })}
-              {field(
-                "Region",
-                "storageRegion",
-                { placeholder: storageProvider === "cloudflare_r2" ? "auto" : "us-east-1" }
-              )}
-            </div>
-            {storageProvider === "cloudflare_r2" &&
-              field("R2 Endpoint URL", "storageEndpoint", {
-                placeholder: "https://<account-id>.r2.cloudflarestorage.com",
-              })
-            }
-            {field("Access Key ID", "storageAccessKey", { placeholder: "Access key ID", autoComplete: "off" })}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Secret Access Key</label>
-              <input
-                {...register("storageSecretKey")}
-                type="password"
-                autoComplete="new-password"
-                placeholder={settings.hasStorageSecretKey ? "Leave blank to keep current key" : "Secret access key"}
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-              />
-            </div>
-            {field("Public URL (CDN base)", "storagePublicUrl", {
-              placeholder: storageProvider === "cloudflare_r2"
-                ? "https://pub-xxx.r2.dev"
-                : "https://cdn.example.com",
-              type: "url",
-            })}
-            <p className="text-xs text-amber-600 dark:text-amber-400">
-              ⚠ Credentials are stored in the database. Use a dedicated IAM / API token with write-only access to this bucket.
-            </p>
-          </div>
-        )}
+       {(storageProvider === "cloudflare_r2" || storageProvider === "s3") && (
+  <div className="space-y-4">
+    <div className="grid grid-cols-2 gap-4">
+      {field(t("bucket_name"), "storageBucket", { placeholder: "my-bucket" })}
+      {field(
+        t("region"),
+        "storageRegion",
+        { placeholder: storageProvider === "cloudflare_r2" ? "auto" : "us-east-1" }
+      )}
+    </div>
+    {storageProvider === "cloudflare_r2" &&
+      field(t("r2_endpoint"), "storageEndpoint", {
+        placeholder: "https://<account-id>.r2.cloudflarestorage.com",
+      })
+    }
+    {field(t("access_key_id"), "storageAccessKey", { placeholder: t("access_key_id_placeholder"), autoComplete: "off" })}
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium">{t("secret_access_key")}</label>
+      <input
+        {...register("storageSecretKey")}
+        type="password"
+        autoComplete="new-password"
+        placeholder={settings.hasStorageSecretKey ? t("secret_key_placeholder_keep") : t("secret_key_placeholder_new")}
+        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      />
+    </div>
+    {field(t("public_url_cdn"), "storagePublicUrl", {
+      placeholder: storageProvider === "cloudflare_r2"
+        ? "https://pub-xxx.r2.dev"
+        : "https://cdn.example.com",
+      type: "url",
+    })}
+    <p className="text-xs text-amber-600 dark:text-amber-400">
+      {t("credentials_warning")}
+    </p>
+  </div>
+)}
       </section>
 
       <div className="flex items-center gap-4">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-6 text-sm font-medium transition-colors disabled:opacity-50"
-        >
-          {isSubmitting ? "Saving…" : "Save Settings"}
-        </button>
+       <button
+  type="submit"
+  disabled={isSubmitting}
+  className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-6 text-sm font-medium transition-colors disabled:opacity-50"
+>
+  {isSubmitting ? t("saving") : t("save_settings")}
+</button>
       </div>
     </form>
   );
