@@ -29,8 +29,38 @@
   "printer_disabled_alert": "Принтер отключен. Выберите Serial или USB для тестирования.",
   "print_failed_alert": "Ошибка печати: {error}"
 },
-
-
+"receipts": {
+  "receipt_preview": "Предпросмотр чека",
+  "thermal": "Термо",
+  "print": "Печать",
+  "thermal_print_title": "Термопечать (Web Serial)",
+  "sale_number": "Продажа",
+  "for_customer": "Клиент: {name}",
+  "subtotal": "Промежуточный итог",
+  "discount": "Скидка",
+  "tip": "Чаевые",
+  "total": "ИТОГО",
+  "payment": "Оплата",
+  "amount_tendered": "Внесенная сумма",
+  "change_due": "Сдача",
+  "cash": "Наличные",
+  "card": "Карта",
+  "other": "Другое"
+},
+"void-item": {
+  "title": "Отмена товара",
+  "remove_message": "Удалить <strong>{itemName}</strong> из корзины?",
+  "reason_label": "Причина (необязательно)",
+  "reason_placeholder": "например, Клиент передумал",
+  "cancel": "Отмена",
+  "void_item": "Отменить товар"
+},
+"receipt-modal": {
+  "receipt_preview": "Предпросмотр чека",
+  "thermal": "Термо",
+  "print": "Печать",
+  "thermal_print_title": "Термопечать (Web Serial)"
+},
 
   "sett": {
   "Failed": "Ошибка при сохранении настроек. Попробуйте еще раз.",
@@ -117,9 +147,9 @@
     "void": "Отменить продажу",
     "checkout": "Оплатить",
     "complete_sale": "Завершить продажу",
-    "cash": "Наличные",
-    "card": "Карта",
-    "other": "Другое",
+  "cash_label": "Наличные",
+"card_label": "Карта",
+"other_label": "Другое",
     "total": "Итого",
     "subtotal": "Подытог",
     "tax": "Налог",

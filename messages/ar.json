@@ -108,6 +108,38 @@
     "Signing_out": "جارٍ تسجيل الخروج...",
 "Sign_out": "تسجيل الخروج"
   },
+  "receipt-modal": {
+  "receipt_preview": "معاينة الإيصال",
+  "thermal": "حراري",
+  "print": "طباعة",
+  "thermal_print_title": "طباعة حرارية (Web Serial)"
+},
+"receipts": {
+  "receipt_preview": "معاينة الإيصال",
+  "thermal": "حراري",
+  "print": "طباعة",
+  "thermal_print_title": "طباعة حرارية (Web Serial)",
+  "sale_number": "بيع",
+  "for_customer": "للعميل: {name}",
+  "subtotal": "المجموع الفرعي",
+  "discount": "الخصم",
+  "tip": "إكرامية",
+  "total": "الإجمالي",
+  "payment": "الدفع",
+  "amount_tendered": "المبلغ المدفوع",
+  "change_due": "الباقي",
+  "cash": "نقدًا",
+  "card": "بطاقة",
+  "other": "أخرى"
+},
+"void-item": {
+  "title": "إلغاء العنصر",
+  "remove_message": "هل تريد إزالة <strong>{itemName}</strong> من السلة؟",
+  "reason_label": "السبب (اختياري)",
+  "reason_placeholder": "مثال: غير العميل رأيه",
+  "cancel": "إلغاء",
+  "void_item": "إلغاء العنصر"
+},
   "pos": {
     "title": "نقطة البيع",
     "search_placeholder": "البحث بالاسم أو الرمز أو مسح الباركود…",
@@ -117,9 +149,9 @@
     "void": "إلغاء البيع",
     "checkout": "الدفع",
     "complete_sale": "إتمام البيع",
-    "cash": "نقداً",
-    "card": "بطاقة",
-    "other": "أخرى",
+    "cash_label": "نقدًا",
+"card_label": "بطاقة",
+"other_label": "أخرى",
     "total": "الإجمالي",
     "subtotal": "المجموع الفرعي",
     "tax": "الضريبة",

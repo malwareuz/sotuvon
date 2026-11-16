@@ -50,6 +50,17 @@ interface ThermalReceiptSettings {
   currencyDecimals: number;
   taxName: string;
   receiptFooter: string;
+  labels?: {
+    subtotal?: string;
+    discount?: string;
+    total?: string;
+    payment?: string;
+    tendered?: string;
+    changeDue?: string;
+    cash?: string;
+    card?: string;
+    other?: string;
+  };
 }
 
 interface ThermalReceiptItem {
@@ -78,9 +89,19 @@ function buildReceiptBytes(
   const chunks: Uint8Array[] = [];
   const c = settings.currency;
   const d = settings.currencyDecimals;
+  const labels = settings.labels || {};
 
   function fmt(n: number) {
     return `${c}${n.toFixed(d)}`;
+  }
+
+  function paymentLabel(method: string) {
+    switch (method) {
+      case "CASH": return labels.cash || "Cash";
+      case "CARD": return labels.card || "Card";
+      case "OTHER": return labels.other || "Other";
+      default: return method;
+    }
   }
 
   chunks.push(INIT);
@@ -103,26 +124,26 @@ function buildReceiptBytes(
   chunks.push(divider());
 
   // Totals
-  chunks.push(twoColumns("Subtotal", fmt(data.subtotal)));
+  chunks.push(twoColumns(labels.subtotal || "Subtotal", fmt(data.subtotal)));
   if (data.discountAmount > 0) {
-    chunks.push(twoColumns("Discount", `-${fmt(data.discountAmount)}`));
+    chunks.push(twoColumns(labels.discount || "Discount", `-${fmt(data.discountAmount)}`));
   }
   if (data.taxAmount > 0) {
     chunks.push(twoColumns(settings.taxName, fmt(data.taxAmount)));
   }
   chunks.push(divider());
   chunks.push(BOLD_ON);
-  chunks.push(twoColumns("TOTAL", fmt(data.total)));
+  chunks.push(twoColumns(labels.total || "TOTAL", fmt(data.total)));
   chunks.push(BOLD_OFF);
   chunks.push(divider());
 
   // Payment
-  chunks.push(twoColumns("Payment", data.paymentMethod));
+  chunks.push(twoColumns(labels.payment || "Payment", paymentLabel(data.paymentMethod)));
   if (data.amountTendered && data.amountTendered > 0) {
-    chunks.push(twoColumns("Tendered", fmt(data.amountTendered)));
+    chunks.push(twoColumns(labels.tendered || "Tendered", fmt(data.amountTendered)));
   }
   if (data.changeDue && data.changeDue > 0) {
-    chunks.push(twoColumns("Change Due", fmt(data.changeDue)));
+    chunks.push(twoColumns(labels.changeDue || "Change Due", fmt(data.changeDue)));
   }
 
   if (settings.receiptFooter) {

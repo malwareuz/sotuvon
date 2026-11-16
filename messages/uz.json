@@ -7,8 +7,38 @@
   "enable_plugin": "Plaginni yoqish",
   "enabled": "Yoqilgan",
   "disabled": "O'chirilgan"
+},"void-item": {
+  "title": "Mahsulotni bekor qilish",
+  "remove_message": "Savatdan <strong>{itemName}</strong> ni olib tashlaysizmi?",
+  "reason_label": "Sabab (ixtiyoriy)",
+  "reason_placeholder": "masalan, Mijoz fikridan qaytdi",
+  "cancel": "Bekor qilish",
+  "void_item": "Bekor qilish"
 },
-
+"receipt-modal": {
+  "receipt_preview": "Chek ko'rinishi",
+  "thermal": "Termal",
+  "print": "Chop etish",
+  "thermal_print_title": "Termal chop etish (Web Serial)"
+},
+"receipts": {
+  "receipt_preview": "Chek ko'rinishi",
+  "thermal": "Termal",
+  "print": "Chop etish",
+  "thermal_print_title": "Termal chop etish (Web Serial)",
+  "sale_number": "Sotuv",
+  "for_customer": "Mijoz: {name}",
+  "subtotal": "Oraliq summa",
+  "discount": "Chegirma",
+  "tip": "Choychaqa",
+  "total": "JAMI",
+  "payment": "To'lov",
+  "amount_tendered": "To'langan summa",
+  "change_due": "Qaytim",
+  "cash": "Naqd",
+  "card": "Karta",
+  "other": "Boshqa"
+},
 
  "device-set": {
   "device_preferences": "Qurilma sozlamalari",
@@ -118,9 +148,7 @@
     "void": "Savdoni bekor qilish",
     "checkout": "To‘lovga o‘tish",
     "complete_sale": "Savdoni yakunlash",
-    "cash": "Naqd",
-    "card": "Karta",
-    "other": "Boshqa",
+   
     "total": "Jami",
     "subtotal": "Oraliq summa",
     "tax": "Soliq",

@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export interface ReceiptItem {
   name: string;
   quantity: number;
@@ -41,14 +45,24 @@ function fmt(amount: number, currency = "$", decimals = 2) {
 }
 
 export function Receipt({ data, settings }: ReceiptProps) {
+  const t = useTranslations("receipts");
   const c = settings.currency;
   const d = settings.currencyDecimals;
   const now = data.createdAt ?? new Date();
 
+  const getPaymentMethodLabel = (method: string) => {
+    switch (method) {
+      case "CASH": return t("cash");
+      case "CARD": return t("card");
+      case "OTHER": return t("other");
+      default: return method;
+    }
+  };
+
   return (
     <div
       id="receipt-print"
-      className="font-mono text-xs w-72 mx-auto bg-white text-black p-4 print:w-full print:text-[10pt] print:p-0"
+      className="font-mono text-xs w-80 mx-auto bg-white text-black p-4 print:w-full print:text-[10pt] print:p-0"
       style={{ fontFamily: "monospace" }}
     >
       {/* Header */}
@@ -73,11 +87,11 @@ export function Receipt({ data, settings }: ReceiptProps) {
       </div>
       {data.saleId && (
         <p className="text-[10px] text-center mb-2">
-          Sale #{data.saleId.slice(-8).toUpperCase()}
+          {t("sale_number")} #{data.saleId.slice(-8).toUpperCase()}
         </p>
       )}
       {data.customerName && (
-        <p className="text-[10px] text-center mb-2">For: {data.customerName}</p>
+        <p className="text-[10px] text-center mb-2">{t("for_customer", { name: data.customerName })}</p>
       )}
 
       <div className="border-t border-dashed border-black my-2" />
@@ -107,12 +121,12 @@ export function Receipt({ data, settings }: ReceiptProps) {
       {/* Totals */}
       <div className="space-y-0.5 mb-2">
         <div className="flex justify-between">
-          <span>Subtotal</span>
+          <span>{t("subtotal")}</span>
           <span>{fmt(data.subtotal, c, d)}</span>
         </div>
         {data.discountAmount > 0 && (
           <div className="flex justify-between">
-            <span>Discount</span>
+            <span>{t("discount")}</span>
             <span>-{fmt(data.discountAmount, c, d)}</span>
           </div>
         )}
@@ -124,12 +138,12 @@ export function Receipt({ data, settings }: ReceiptProps) {
         )}
         {data.tipAmount != null && data.tipAmount > 0 && (
           <div className="flex justify-between">
-            <span>Tip</span>
+            <span>{t("tip")}</span>
             <span>{fmt(data.tipAmount, c, d)}</span>
           </div>
         )}
         <div className="flex justify-between font-bold text-sm border-t border-black pt-1 mt-1">
-          <span>TOTAL</span>
+          <span>{t("total")}</span>
           <span>{fmt(data.total, c, d)}</span>
         </div>
       </div>
@@ -139,25 +153,25 @@ export function Receipt({ data, settings }: ReceiptProps) {
         {data.paymentLines && data.paymentLines.length > 0 ? (
           data.paymentLines.map((line, i) => (
             <div key={i} className="flex justify-between">
-              <span>{line.method}</span>
+              <span>{getPaymentMethodLabel(line.method)}</span>
               <span>{fmt(line.amount, c, d)}</span>
             </div>
           ))
         ) : (
           <div className="flex justify-between">
-            <span>Payment</span>
-            <span>{data.paymentMethod}</span>
+            <span>{t("payment")}</span>
+            <span>{getPaymentMethodLabel(data.paymentMethod)}</span>
           </div>
         )}
         {data.amountTendered != null && data.amountTendered > 0 && !data.paymentLines?.length && (
           <div className="flex justify-between">
-            <span>Tendered</span>
+            <span>{t("amount_tendered")}</span>
             <span>{fmt(data.amountTendered, c, d)}</span>
           </div>
         )}
         {data.changeDue != null && data.changeDue > 0 && (
           <div className="flex justify-between">
-            <span>Change</span>
+            <span>{t("change_due")}</span>
             <span>{fmt(data.changeDue, c, d)}</span>
           </div>
         )}

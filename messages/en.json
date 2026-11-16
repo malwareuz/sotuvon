@@ -107,6 +107,38 @@
     "Signing_out": "Signing out...",
 "Sign_out": "Sign out"
   },
+  "receipts": {
+  "receipt_preview": "Receipt Preview",
+  "thermal": "Thermal",
+  "print": "Print",
+  "thermal_print_title": "Thermal print (Web Serial)",
+  "sale_number": "Sale",
+  "for_customer": "For: {name}",
+  "subtotal": "Subtotal",
+  "discount": "Discount",
+  "tip": "Tip",
+  "total": "TOTAL",
+  "payment": "Payment",
+  "amount_tendered": "Amount Tendered",
+  "change_due": "Change Due",
+  "cash": "Cash",
+  "card": "Card",
+  "other": "Other"
+},
+  "void-item": {
+  "title": "Void Item",
+  "remove_message": "Remove <strong>{itemName}</strong> from the cart?",
+  "reason_label": "Reason (optional)",
+  "reason_placeholder": "e.g. Customer changed mind",
+  "cancel": "Cancel",
+  "void_item": "Void Item"
+},
+  "receipt-modal": {
+  "receipt_preview": "Receipt Preview",
+  "thermal": "Thermal",
+  "print": "Print",
+  "thermal_print_title": "Thermal print (Web Serial)"
+},
   "pos": {
     "title": "Point of Sale",
     "search_placeholder": "Search by name, SKU, or scan barcode…",
@@ -116,9 +148,9 @@
     "void": "Void Sale",
     "checkout": "Checkout",
     "complete_sale": "Complete Sale",
-    "cash": "Cash",
-    "card": "Card",
-    "other": "Other",
+   "cash_label": "Cash",
+"card_label": "Card",
+"other_label": "Other",
     "total": "Total",
     "subtotal": "Subtotal",
     "tax": "Tax",

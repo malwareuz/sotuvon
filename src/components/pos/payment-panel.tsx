@@ -30,7 +30,14 @@ const PAYMENT_METHODS: PaymentMethod[] = ["CASH", "CARD", "OTHER"];
 
 export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, customerId }: PaymentPanelProps) {
   const t = useTranslations("pos");
-  
+  const getPaymentMethodLabel = (method: PaymentMethod) => {
+  switch (method) {
+    case "CASH": return t("cash_label");
+    case "CARD": return t("card_label");
+    case "OTHER": return t("other_label");
+    default: return method;
+  }
+};
   const router = useRouter();
   const formatCurrency = useFormatCurrency();
   const {
@@ -392,10 +399,10 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
               return (
                 <div key={method} className="flex items-center gap-2">
                   <span className={`w-14 rounded-md border text-center py-1.5 text-xs font-medium ${
-                    line ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground"
-                  }`}>
-                    {method}
-                  </span>
+  line ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground"
+}`}>
+  {getPaymentMethodLabel(method)}
+</span>
                   <input
                     type="number"
                     min={0}
@@ -432,17 +439,17 @@ export function PaymentPanel({ taxRate, onClear, onSaleComplete, onHoldOrders, c
           <>
             <div className="flex gap-2">
               {PAYMENT_METHODS.map((method) => (
-                <button
-                  key={method}
-                  onClick={() => setPaymentMethod(method)}
-                  className={
-                    paymentMethod === method
-                      ? "flex-1 rounded-md border-2 border-primary bg-primary/10 py-2 text-xs font-semibold text-primary"
-                      : "flex-1 rounded-md border py-2 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
-                  }
-                >
-                  {method}
-                </button>
+             <button
+  key={method}
+  onClick={() => setPaymentMethod(method)}
+  className={
+    paymentMethod === method
+      ? "flex-1 rounded-md border-2 border-primary bg-primary/10 py-2 text-xs font-semibold text-primary"
+      : "flex-1 rounded-md border py-2 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+  }
+>
+  {getPaymentMethodLabel(method)}
+</button>
               ))}
             </div>
 
