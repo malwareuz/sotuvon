@@ -92,6 +92,63 @@ async function main() {
 
   console.log("✅ Business settings seeded");
 
+  // ── Subscription plans ───────────────────────────────────────────────────────
+  const plans = [
+    {
+      name: "Start",
+      slug: "start",
+      priceMonthly: 150000,
+      priceYearly: 1494000,
+      features: [
+        "1 ta kassa",
+        "Asosiy hisobotlar",
+        "500 tagacha mahsulot",
+        "Email qo'llab-quvvatlash",
+      ],
+      sortOrder: 1,
+    },
+    {
+      name: "Standard",
+      slug: "standard",
+      priceMonthly: 250000,
+      priceYearly: 2490000,
+      features: [
+        "3 tagacha kassa",
+        "Barcha hisobotlar",
+        "Cheksiz mahsulotlar",
+        "Mijozlar bazasi",
+        "Telegram qo'llab-quvvatlash",
+      ],
+      isPopular: true,
+      sortOrder: 2,
+    },
+    {
+      name: "Premium",
+      slug: "premium",
+      priceMonthly: 450000,
+      priceYearly: 4482000,
+      features: [
+        "Cheksiz kassa",
+        "Ko'p filiallar",
+        "API integratsiya",
+        "Ustuvor qo'llab-quvvatlash",
+        "Maxsus hisobotlar",
+        "Shaxsiy menejer",
+      ],
+      sortOrder: 3,
+    },
+  ];
+
+  for (const plan of plans) {
+    await prisma.subscriptionPlan.upsert({
+      where: { slug: plan.slug },
+      create: plan,
+      update: plan,
+    });
+  }
+
+  console.log(`✅ ${plans.length} subscription plans seeded`);
+
   // ── Test users (used by E2E tests) ───────────────────────────────────────────
   await upsertUser("admin@example.com", "Admin User", "admin123456", "ADMIN");
   console.log("✅ Admin user seeded (admin@example.com / admin123456)");

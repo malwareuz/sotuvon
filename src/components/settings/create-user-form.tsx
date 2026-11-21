@@ -5,7 +5,7 @@ import { X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PasswordInput } from "@/components/ui/password-input";
 import { createUserAction } from "@/app/actions/user-actions";
-
+import { useTranslations } from "next-intl";
 interface CreateUserFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -14,6 +14,7 @@ interface CreateUserFormProps {
 
 export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUserFormProps) {
   const [loading, setLoading] = useState(false);
+  const t =useTranslations("addUserNew")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,7 +68,7 @@ export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUser
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => onOpenChange(false)} />
       <div className="relative w-full max-w-md bg-background rounded-lg shadow-xl border">
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h3 className="text-lg font-semibold">Add New User</h3>
+          <h3 className="text-lg font-semibold">{t("Add")}</h3>
           <button
             onClick={() => onOpenChange(false)}
             className="p-1 hover:bg-muted rounded transition-colors"
@@ -78,7 +79,7 @@ export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUser
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Name *</label>
+            <label className="text-sm font-medium">{t("name")}</label>
             <input
               type="text"
               required
@@ -91,7 +92,7 @@ export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUser
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Email *</label>
+            <label className="text-sm font-medium">{t("email")}</label>
             <input
               type="email"
               required
@@ -105,7 +106,7 @@ export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUser
 
           <div className="space-y-1.5">
             <PasswordInput
-              label="Password *"
+              label={t("pass")}
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -116,13 +117,13 @@ export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUser
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Role *</label>
+            <label className="text-sm font-medium">{t("role")}</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value as "ADMIN" | "CASHIER" })}
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <option value="CASHIER">Cashier</option>
+              <option value="CASHIER">{t("cash")}</option>
               <option value="ADMIN">Admin</option>
             </select>
             {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
@@ -132,17 +133,17 @@ export function CreateUserForm({ open, onOpenChange, onUserCreated }: CreateUser
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-9 rounded-md border border-input hover:bg-muted transition-colors text-sm font-medium"
+              className="flex-1 h-9 rounded-md border cursor-pointer border-input hover:bg-muted transition-colors text-sm font-medium"
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 h-9 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium flex items-center justify-center gap-2"
+              className="flex-1 h-9 rounded-md cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="h-3 w-3 animate-spin" />}
-              Create User
+              {t("cuser")}
             </button>
           </div>
         </form>

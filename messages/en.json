@@ -98,6 +98,7 @@
 
   "nav": {
     "pos": "POS",
+    "subscription": "Subscription",
     "products": "Products",
     "sales": "Sales",
     "customers": "Customers",
@@ -107,6 +108,72 @@
     "Signing_out": "Signing out...",
 "Sign_out": "Sign out"
   },
+  "addUserNew": {
+  "Add": "Add new user",
+  "name": "Name *",
+  "email": "Email *",
+  "pass": "Password *",
+  "role": "Role *",
+  "cash": "Cashier",
+  "Cancel": "Cancel",
+  "cuser": "Create user"
+},
+  "subscription": {
+    "current_subscription": "Your current subscription: {plan} (ends on {date})",
+    "checkout_title": "Confirm Payment",
+"checkout_desc": "Click the button below to complete payment",
+"pay_now": "Pay Now",
+"payment_success": "Payment successful!",
+"redirecting": "Redirecting to subscription page...",
+  "title": "Subscription Plans",
+  "subtitle": "Choose the plan that suits your business",
+  "popular": "Popular",
+  "current_plan": "Current Plan",
+  "choose_plan": "Choose",
+  "processing": "Processing...",
+  "payment_error": "Payment failed. Please try again.",
+  "billing": {
+    "monthly": "Monthly",
+    "yearly": "Yearly"
+  },
+  "period": {
+    "month": "mo",
+    "year": "yr"
+  },
+  "plans": {
+    "start": {
+      "name": "Start",
+      "features": [
+        "1 register",
+        "Basic reports",
+        "Up to 500 products",
+        "Email support"
+      ]
+    },
+    "standard": {
+      "name": "Standard",
+      "features": [
+        "Up to 3 registers",
+        "All reports",
+        "Unlimited products",
+        "Customer database",
+        "Telegram support"
+      ]
+    },
+    "premium": {
+      "name": "Premium",
+      "features": [
+        "Unlimited registers",
+        "Multi-branch",
+        "API integration",
+        "Priority support",
+        "Custom reports",
+        "Personal manager"
+      ]
+    }
+  }
+},
+
   "receipts": {
   "receipt_preview": "Receipt Preview",
   "thermal": "Thermal",
