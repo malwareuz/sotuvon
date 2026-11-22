@@ -4,41 +4,29 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 export async function POST(req: Request) {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const { planId, billingCycle, amount } = await req.json();
 
-    const { planId, billingCycle, amount } = await req.json();
-    if (!planId || !billingCycle || !amount) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
+  const transaction = await prisma.transaction.create({
+    data: {
+      userId: session.user.id,
+      amount,
+      currency: "UZS",
+      provider: "PAYME",
+      status: "PENDING",
+      metadata: { planId, billingCycle },
+    },
+  });
 
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
-    if (!plan) return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+  const amountInTiyin = amount * 100;
+  const paymeMerchantId = process.env.PAYME_MERCHANT_ID;
+  
+  // ✅ base64 formatida URL yaratish
+  const params = `m=${paymeMerchantId};ac.order_id=${transaction.id};a=${amountInTiyin}`;
+  const base64Params = Buffer.from(params).toString('base64');
+  const checkoutUrl = `https://checkout.paycom.uz/${base64Params}`;
 
-    // Transaction yaratish
-    const transaction = await prisma.transaction.create({
-      data: {
-        userId: session.user.id,
-        amount,
-        currency: "UZS",
-        provider: "MANUAL",
-        status: "PENDING",
-        metadata: { planId, billingCycle },
-      },
-    });
-
-    // ⚠️ MOCK: Payme/Click/Stripe bilan almashtiring
-    const checkoutUrl = `/subscription/checkout?tx=${transaction.id}`;
-
-    return NextResponse.json({ ok: true, transactionId: transaction.id, checkoutUrl });
-  } catch (error) {
-    console.error("Checkout error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
+  return NextResponse.json({ ok: true, transactionId: transaction.id, checkoutUrl });
 }
