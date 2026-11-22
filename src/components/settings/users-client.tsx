@@ -15,10 +15,11 @@ interface User {
 }
 
 interface UsersClientProps {
-  initialUsers: User[];
+  initialUsers: any[];
+  limitReached?: boolean;
 }
 
-export function UsersClient({ initialUsers }: UsersClientProps) {
+export function UsersClient({ initialUsers, limitReached = false }: UsersClientProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -27,7 +28,6 @@ export function UsersClient({ initialUsers }: UsersClientProps) {
   }
 
   function handleUserUpdated() {
-    // Refresh users list from API
     fetch("/api/users")
       .then((res) => res.json())
       .then((data) => {
@@ -35,13 +35,10 @@ export function UsersClient({ initialUsers }: UsersClientProps) {
           setUsers(data.users);
         }
       })
-      .catch(() => {
-        // Silently fail, user can refresh manually
-      });
+      .catch(() => {});
   }
 
   function handleUserCreated() {
-    // Refresh users list from API
     fetch("/api/users")
       .then((res) => res.json())
       .then((data) => {
@@ -49,9 +46,7 @@ export function UsersClient({ initialUsers }: UsersClientProps) {
           setUsers(data.users);
         }
       })
-      .catch(() => {
-        // Silently fail, user can refresh manually
-      });
+      .catch(() => {});
   }
 
   return (
@@ -63,7 +58,9 @@ export function UsersClient({ initialUsers }: UsersClientProps) {
         </div>
         <button
           onClick={() => setCreateOpen(true)}
-          className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
+          disabled={limitReached}
+          // ✅ disabled bo'lganda rang o'zgarishi va kursorni bloklash uchun klasslar qo'shildi
+          className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
         >
           Add User
         </button>

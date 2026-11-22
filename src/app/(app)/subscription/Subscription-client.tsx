@@ -109,7 +109,7 @@ export default function SubscriptionClient({ plans, currentSubscription }: Subsc
               }`}
             >
               {t("billing.yearly")}
-              <span className="ml-1 text-[10px] sm:text-xs text-green-600 font-bold">-17%</span>
+              <span className="ml-1 text-[10px] sm:text-xs text-green-600 font-bold">-10%</span>
             </button>
           </div>
         </div>

@@ -97,8 +97,8 @@ async function main() {
     {
       name: "Start",
       slug: "start",
-      priceMonthly: 150000,
-      priceYearly: 1494000,
+      priceMonthly: 149000,
+      priceYearly: 1620000,
       features: [
         "1 ta kassa",
         "Asosiy hisobotlar",
@@ -110,8 +110,8 @@ async function main() {
     {
       name: "Standard",
       slug: "standard",
-      priceMonthly: 250000,
-      priceYearly: 2490000,
+      priceMonthly: 249000,
+      priceYearly: 2700000,
       features: [
         "3 tagacha kassa",
         "Barcha hisobotlar",
@@ -125,8 +125,8 @@ async function main() {
     {
       name: "Premium",
       slug: "premium",
-      priceMonthly: 450000,
-      priceYearly: 4482000,
+      priceMonthly: 449000,
+      priceYearly: 4860000,
       features: [
         "Cheksiz kassa",
         "Ko'p filiallar",
