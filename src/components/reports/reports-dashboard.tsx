@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";  
 import { useFormatCurrency } from "@/contexts/settings-context";
 import {
   BarChart,

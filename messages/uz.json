@@ -213,6 +213,10 @@
   },
   "pos": {
     "title": "Sotuv nuqtasi",
+     "serc":"Qidirilmoqda...",
+    "outtt":"Tashqarida",
+    "nprod":"Hech qanday mahsulot topilmadi",
+    "noprodad":"Hali mahsulot yo'q — katalogga mahsulotlar qo'shing",
     "search_placeholder": "Nom, SKU bo'yicha qidirish yoki shtrix-kodni skanerlash…",
     "cart_empty": "Savat bo'sh",
     "add_customer": "Mijoz qo'shish",
@@ -422,5 +426,10 @@
     "password": "Parol",
     "password_desc": "Xavfsizlik uchun parolni muntazam o'zgartiring",
     "change_password": "Parolni o'zgartirish"
+  },
+  "useradd":{
+
+    "usr":"Foydalanuvchi boshqaruvi",
+    "cusr":"Tizim foydalanuvchilarini yaratish va boshqarish"
   }
 }

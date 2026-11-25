@@ -206,7 +206,15 @@
   "print": "Print",
   "thermal_print_title": "Thermal print (Web Serial)"
 },
+"useradd": {
+  "usr": "User Management",
+  "cusr": "Create and manage system users"
+},
   "pos": {
+   "serc": "Searching...",
+"outtt": "Out of stock",
+"nprod": "No products found",
+"noprodad": "No products yet — add products to the catalog",
     "title": "Point of Sale",
     "search_placeholder": "Search by name, SKU, or scan barcode…",
     "cart_empty": "Cart is empty",

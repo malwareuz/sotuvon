@@ -61,7 +61,6 @@ export default async function ProductsPage() {
         )}
       </div>
       
-      {/* ✅ Endi products har doim massiv bo'ladi */}
       <ProductTable products={products} />
     </div>
   );
