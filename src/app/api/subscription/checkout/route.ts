@@ -1,3 +1,4 @@
+// src/app/api/subscription/checkout/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
@@ -9,24 +10,20 @@ export async function POST(req: Request) {
 
   const { planId, billingCycle, amount } = await req.json();
 
+  // 1. Transaction yaratish (PENDING holatida)
   const transaction = await prisma.transaction.create({
     data: {
       userId: session.user.id,
       amount,
       currency: "UZS",
-      provider: "PAYME",
+      provider: "MANUAL", // ✅ Test rejimi uchun
       status: "PENDING",
       metadata: { planId, billingCycle },
     },
   });
 
-  const amountInTiyin = amount * 100;
-  const paymeMerchantId = process.env.PAYME_MERCHANT_ID;
-  
-  // ✅ base64 formatida URL yaratish
-  const params = `m=${paymeMerchantId};ac.order_id=${transaction.id};a=${amountInTiyin}`;
-  const base64Params = Buffer.from(params).toString('base64');
-  const checkoutUrl = `https://checkout.paycom.uz/${base64Params}`;
+  // 2. To'g'ridan-to'g'ri o'zimizning to'lov sahifamizga yuboramiz
+  const checkoutUrl = `/subscription/checkout?tx=${transaction.id}`;
 
   return NextResponse.json({ ok: true, transactionId: transaction.id, checkoutUrl });
 }
