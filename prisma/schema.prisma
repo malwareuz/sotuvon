@@ -57,54 +57,8 @@ model User {
   refunds           Refund[]
   subscription      Subscription?   // faqat relation, fields yo'q
   transactions      Transaction[]
-  tenantMemberships TenantMember[]
-  ownedTenants      Tenant[] @relation("TenantOwner")
 }
 
-
-
-// ============================================================
-// Multi-tenant core
-// ============================================================
-
-model Tenant {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  ownerId   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  owner             User?             @relation("TenantOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  members           TenantMember[]
-  products          Product[]
-  customers         Customer[]
-  sales             Sale[]
-  heldOrders        HeldOrder[]
-  loyaltyLogs       LoyaltyLog[]
-  stockAdjustments  StockAdjustment[]
-  suppliers         Supplier[]
-  refunds           Refund[]
-  businessSettings  BusinessSettings?
-  subscription      Subscription?
-  transactions      Transaction[]
-
-  @@index([ownerId])
-}
-
-model TenantMember {
-  id        String   @id @default(cuid())
-  tenantId  String
-  userId    String   @unique
-  role      Role     @default(CASHIER)
-  createdAt DateTime @default(now())
-
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId, userId])
-  @@index([tenantId, role])
-}
 
 model Session {
   id        String   @id @default(cuid())
@@ -153,11 +107,10 @@ model Verification {
 // ============================================================
 
 model Product {
-  tenantId String
   id                String   @id @default(cuid())
   name              String
-  sku               String?
-  barcode           String?
+  sku               String?  @unique
+  barcode           String?  @unique
   price             Decimal  @db.Decimal(10, 2)
   cost              Decimal? @db.Decimal(10, 2)
   stock             Int      @default(0)
@@ -172,11 +125,6 @@ model Product {
   saleItems        SaleItem[]
   stockAdjustments StockAdjustment[]
   supplier         Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId, sku])
-  @@unique([tenantId, barcode])
-  @@index([tenantId, name])
 }
 
 // ============================================================
@@ -184,11 +132,10 @@ model Product {
 // ============================================================
 
 model Customer {
-  tenantId String
   id        String   @id @default(cuid())
   name      String
-  phone     String?
-  email     String?
+  phone     String?  @unique
+  email     String?  @unique
   notes     String?
   loyaltyPoints Int      @default(0)
   createdAt DateTime @default(now())
@@ -196,11 +143,6 @@ model Customer {
 
   sales         Sale[]
   loyaltyLogs   LoyaltyLog[]
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId, phone])
-  @@unique([tenantId, email])
-  @@index([tenantId, name])
 }
 
 // ============================================================
@@ -208,7 +150,6 @@ model Customer {
 // ============================================================
 
 model Sale {
-  tenantId String
   id             String        @id @default(cuid())
   userId         String
   customerId     String?
@@ -232,9 +173,6 @@ model Sale {
   items    SaleItem[]
   refunds  Refund[]
   loyaltyLogs LoyaltyLog[]
-
-  @@index([tenantId])
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model SaleItem {
@@ -256,14 +194,10 @@ model SaleItem {
 // ============================================================
 
 model HeldOrder {
-  tenantId String
   id           String   @id @default(cuid())
   label        String?
   cartSnapshot Json
   createdAt    DateTime @default(now())
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@index([tenantId])
 }
 
 // ============================================================
@@ -277,7 +211,6 @@ enum LoyaltyLogType {
 }
 
 model LoyaltyLog {
-  tenantId String
   id         String          @id @default(cuid())
   customerId String
   saleId     String?
@@ -288,9 +221,6 @@ model LoyaltyLog {
 
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   sale     Sale?    @relation(fields: [saleId], references: [id], onDelete: SetNull)
-
-  @@index([tenantId])
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 // ============================================================
@@ -306,7 +236,6 @@ enum StockAdjReason {
 }
 
 model StockAdjustment {
-  tenantId String
   id        String         @id @default(cuid())
   productId String
   userId    String
@@ -317,13 +246,9 @@ model StockAdjustment {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
-
-  @@index([tenantId])
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model Supplier {
-  tenantId String
   id          String   @id @default(cuid())
   name        String
   contactName String?
@@ -334,9 +259,6 @@ model Supplier {
   updatedAt   DateTime @updatedAt
 
   products Product[]
-
-  @@index([tenantId])
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 // ============================================================
@@ -344,7 +266,6 @@ model Supplier {
 // ============================================================
 
 model Refund {
-  tenantId String
   id         String   @id @default(cuid())
   saleId     String
   userId     String
@@ -356,9 +277,6 @@ model Refund {
 
   sale Sale @relation(fields: [saleId], references: [id])
   user User @relation(fields: [userId], references: [id])
-
-  @@index([tenantId])
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 // ============================================================
@@ -366,7 +284,6 @@ model Refund {
 // ============================================================
 
 model BusinessSettings {
-  tenantId String
   id               String   @id @default("singleton")
   name             String   @default("My Store")
   logoUrl          String?
@@ -395,11 +312,6 @@ model BusinessSettings {
   setupComplete    Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@index([tenantId])
-
-  @@unique([tenantId])
 }
 enum SubscriptionStatus {
   ACTIVE
@@ -445,7 +357,6 @@ model SubscriptionPlan {
 }
 
 model Subscription {
-  tenantId String
   id                 String             @id @default(cuid())
   userId             String             @unique
   planId             String
@@ -461,15 +372,9 @@ model Subscription {
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan         SubscriptionPlan @relation(fields: [planId], references: [id])
   transactions Transaction[]
-
-  @@index([tenantId])
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId])
 }
 
 model Transaction {
-  tenantId String
   id             String            @id @default(cuid())
   userId         String
   subscriptionId String?
@@ -484,7 +389,4 @@ model Transaction {
 
   user         User          @relation(fields: [userId], references: [id])
   subscription Subscription? @relation(fields: [subscriptionId], references: [id])
-
-  @@index([tenantId])
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
