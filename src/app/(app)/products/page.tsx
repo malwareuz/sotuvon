@@ -8,7 +8,7 @@ import { DbError } from "@/components/ui/db-error";
 import { getTranslations } from "next-intl/server";
 import { getCurrentSubscriptionLimit } from "@/lib/subscription-guard";
 import { AlertCircle } from "lucide-react";
-import type { Product } from "@/generated/prisma/client"; // ✅ Product tipini import qilish
+import type { Product } from "@/generated/prisma/client"; 
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Products" };
@@ -17,7 +17,7 @@ export default async function ProductsPage() {
   noStore();
   const t = await getTranslations("products");
 
-  let products: Product[] = []; // ✅ Boshlang'ich qiymat berildi
+  let products: Product[] = [];
   let limitError: string | null = null;
 
   try {

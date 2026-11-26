@@ -210,6 +210,25 @@
   "usr": "User Management",
   "cusr": "Create and manage system users"
 },
+"pform": {
+  "proaddddd":"Add Product",
+    "proup": "Product updated successfully",
+    "procr": "Product created successfully",
+    "failto": "Failed to save the product. Please try again.",
+    "price": "Selling price *",
+    "name": "Name *",
+    "costt": "Cost price *",
+    "stoc": "Stock balance *",
+    "lowst": "Low stock warning *",
+    "cate": "Category",
+    "beva": "Beverages",
+    "proimg": "Product image",
+    "img5": "JPEG, PNG, WebP formats up to 5 MB",
+    "acpos": "Active (visible in POS)",
+    "savee": "Saving…",
+    "uppro": "Update product",
+    "adpro": "Add product"
+},
   "pos": {
    "serc": "Searching...",
 "outtt": "Out of stock",

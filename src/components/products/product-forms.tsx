@@ -21,7 +21,6 @@ export function ProductForm() {
         }
         throw new Error(err.error);
       }
-      // Muvaffaqiyatli qo'shildi
     } catch (error) {
       console.error(error);
     }
@@ -38,7 +37,6 @@ export function ProductForm() {
           </Link>
         </div>
       )}
-      {/* Forma */}
     </div>
   );
 }

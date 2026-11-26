@@ -32,7 +32,6 @@
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastKeypressRef = useRef<number>(0);
 
-    // Load all products on mount for the quick-add grid
     useEffect(() => {
       async function loadGrid() {
         setGridLoading(true);
@@ -43,7 +42,6 @@
             setAllProducts(data);
           }
         } catch {
-          // ignore â€” grid is optional
         } finally {
           setGridLoading(false);
         }
@@ -74,7 +72,6 @@
       }
     }, []);
 
-    // Show toast when barcode scan returns no result
     const prevResultsRef = useRef<ProductResult[]>([]);
     useEffect(() => {
       const isBarcodeLike = /^[A-Za-z0-9]{6,20}$/.test(query.trim()) && results.length === 0 && prevResultsRef.current !== results && !loading && query.trim().length > 0;
@@ -90,8 +87,6 @@
       const val = e.target.value;
       setQuery(val);
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      // Barcode scanners type very fast (< 30ms between keystrokes).
-      // Use a short debounce so the search fires immediately after the scanner finishes.
       const now = Date.now();
       const timeSinceLast = now - lastKeypressRef.current;
       lastKeypressRef.current = now;
@@ -114,7 +109,7 @@
 
     return (
       <div className="flex flex-col h-full gap-3">
-        {/* Search bar */}
+      
         <div className="relative shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -138,7 +133,6 @@
           />
         </div>
 
-        {/* Search results */}
         {showSearchResults && (
           <div className="shrink-0">
             {loading && (
@@ -172,7 +166,6 @@
           </div>
         )}
 
-        {/* Quick-add product grid (when no active search) */}
         {!showSearchResults && (
           <div className="flex-1 overflow-y-auto">
             {gridLoading ? (

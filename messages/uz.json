@@ -431,5 +431,24 @@
 
     "usr":"Foydalanuvchi boshqaruvi",
     "cusr":"Tizim foydalanuvchilarini yaratish va boshqarish"
+  },
+  "pform":{
+    "proup":"Mahsulot muvaffaqiyatli yangilandi",
+    "procr":"Mahsulot muvaffaqiyatli yaratildi",
+    "failto":"Mahsulotni saqlab bo'lmadi. Qaytadan urinib ko'ring.",
+    "price":"Sotuv narxi *",
+    "name":"Nomi *",
+    "costt":"Tannarx *",
+    "stoc":"Ombor qoldig'i *",
+    "lowst":"Kam zaxiralar haqida ogohlantirish *",
+    "cate":"Kategoriya",
+    "beva":"Ichimliklar",
+    "proimg":"Mahsulot tasviri",
+    "img5":"JPEG, PNG, WebP formatlari 5 MB gacha",
+    "acpos":"Faol (POSda ko'rinadi)",
+    "savee":"Saqlanmoqda…",
+    "uppro":"Mahsulotni yangilash",
+    "adpro":"Mahsulot qo'shish",
+    "proaddddd":"Mahsulot qo'shish"
   }
 }

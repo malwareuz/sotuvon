@@ -8,6 +8,7 @@ import { createProduct, updateProduct } from "@/app/actions/product-actions";
 import { cn } from "@/lib/utils";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface Product {
   id: string;
@@ -31,6 +32,7 @@ export function ProductForm({ product }: ProductFormProps) {
   const isEdit = !!product;
   const [uploadLoading, setUploadLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(product?.imageUrl ?? null);
+  const t = useTranslations("pform");
 
   const {
     register: registerField,
@@ -38,7 +40,6 @@ export function ProductForm({ product }: ProductFormProps) {
     setValue,
     setError,
     formState: { errors, isSubmitting },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useForm<ProductFormValues, any, any>({
     resolver: zodResolver(productFormSchema) as any,
     defaultValues: product
@@ -63,7 +64,6 @@ export function ProductForm({ product }: ProductFormProps) {
       if (v !== undefined && v !== null) formData.append(k, String(v));
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let res: { error?: any } | undefined;
 
     if (isEdit) {
@@ -76,21 +76,19 @@ export function ProductForm({ product }: ProductFormProps) {
       const fieldErrors = res.error.fieldErrors || {};
       const formErrors: string[] = res.error.formErrors || [];
 
-      // Set field-level errors (shows red border + message under the field)
       Object.keys(fieldErrors).forEach((key) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setError(key as any, { type: "server", message: fieldErrors[key][0] });
-        toast.error(fieldErrors[key][0]);  // also pop a toast for visibility
+        toast.error(fieldErrors[key][0]);  
       });
 
-      // Form-level errors (not tied to a specific field)
       if (Object.keys(fieldErrors).length === 0) {
-        toast.error(formErrors[0] ?? "Failed to save product. Please try again.");
+        toast.error(formErrors[0] ?? `${t("failto")}`);
       }
       return;
     }
 
-    toast.success(isEdit ? "Product updated successfully" : "Product created successfully");
+    toast.success(isEdit ? `${t("proup")}` : `${t("procr")}`);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -116,7 +114,6 @@ export function ProductForm({ product }: ProductFormProps) {
       <div className="space-y-1.5">
         <label className="text-sm font-medium">{label}</label>
         <input
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {...registerField(name as any)}
           {...props}
           className={cn(
@@ -134,7 +131,7 @@ export function ProductForm({ product }: ProductFormProps) {
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
-      {field("Name *", "name", { placeholder: "e.g. Espresso Coffee" })}
+      {field(`${t("name")}`, "name", { placeholder: "e.g. Espresso Coffee" })}
 
       <div className="grid grid-cols-2 gap-4">
         {field("SKU", "sku", { placeholder: "CAFE-001" })}
@@ -142,20 +139,20 @@ export function ProductForm({ product }: ProductFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {field("Price *", "price", { type: "number", step: "0.01", min: "0", placeholder: "0.00" })}
-        {field("Cost", "cost", { type: "number", step: "0.01", min: "0", placeholder: "0.00" })}
+        {field(`${t("price")}`, "price", { type: "number", step: "0.01", min: "0", placeholder: "0.00" })}
+        {field(`${t("costt")}`, "cost", { type: "number", step: "0.01", min: "0", placeholder: "0.00" })}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {field("Stock", "stock", { type: "number", min: "0", step: "1" })}
-        {field("Low Stock Alert", "lowStockThreshold", { type: "number", min: "0", step: "1" })}
+        {field(`${t("stoc")}`, "stock", { type: "number", min: "0", step: "1" })}
+        {field(`${t("lowst")}`, "lowStockThreshold", { type: "number", min: "0", step: "1" })}
       </div>
 
-      {field("Category", "category", { placeholder: "Beverages" })}
+      {field(`${t("cate")}`, "category", { placeholder: `${t("beva")}` })}
 
       {/* Image upload */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Product Image</label>
+        <label className="text-sm font-medium">{t("proimg")}</label>
         <div className="flex items-center gap-3">
           {previewUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -187,7 +184,7 @@ export function ProductForm({ product }: ProductFormProps) {
                 onChange={handleImageUpload}
               />
             </label>
-            <p className="text-xs text-muted-foreground">JPEG, PNG, WebP up to 5 MB</p>
+            <p className="text-xs text-muted-foreground">{t("img5")}</p>
           </div>
         </div>
         {/* Hidden field for imageUrl */}
@@ -198,16 +195,16 @@ export function ProductForm({ product }: ProductFormProps) {
       <div className="flex items-center gap-2">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <input type="checkbox" id="active" {...registerField("active" as any)} className="h-4 w-4" />
-        <label htmlFor="active" className="text-sm font-medium">Active (visible in POS)</label>
+        <label htmlFor="active" className="text-sm font-medium">{t("acpos")}</label>
       </div>
 
       <div className="flex gap-3 pt-2">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-6 text-sm font-medium transition-colors disabled:opacity-50"
+          className="bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-6 text-sm font-medium transition-colors disabled:opacity-50"
         >
-          {isSubmitting ? "Saving…" : isEdit ? "Update Product" : "Add Product"}
+          {isSubmitting ? `${t("savee")}` : isEdit ? `${t("uppro")}` : `${t("adpro")}`}
         </button>
       </div>
     </form>
