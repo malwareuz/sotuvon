@@ -36,29 +36,28 @@ enum PaymentMethod {
 // ============================================================
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  role          Role      @default(CASHIER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          Role     @default(CASHIER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // ✅ Obuna holati (subscriptionId YO'Q!)
   subscriptionStatus SubscriptionStatus @default(EXPIRED)
   subscriptionEndsAt DateTime?
   trialEndsAt        DateTime?
 
-  sales             Sale[]
-  sessions          Session[]
-  accounts          Account[]
-  stockAdjustments  StockAdjustment[]
-  refunds           Refund[]
-  subscription      Subscription?   // faqat relation, fields yo'q
-  transactions      Transaction[]
+  sales            Sale[]
+  sessions         Session[]
+  accounts         Account[]
+  stockAdjustments StockAdjustment[]
+  refunds          Refund[]
+  subscription     Subscription? // faqat relation, fields yo'q
+  transactions     Transaction[]
 }
-
 
 model Session {
   id        String   @id @default(cuid())
@@ -124,7 +123,7 @@ model Product {
 
   saleItems        SaleItem[]
   stockAdjustments StockAdjustment[]
-  supplier         Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supplier         Supplier?         @relation(fields: [supplierId], references: [id], onDelete: SetNull)
 }
 
 // ============================================================
@@ -132,17 +131,17 @@ model Product {
 // ============================================================
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String?  @unique
-  email     String?  @unique
-  notes     String?
+  id            String   @id @default(cuid())
+  name          String
+  phone         String?  @unique
+  email         String?  @unique
+  notes         String?
   loyaltyPoints Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  sales         Sale[]
-  loyaltyLogs   LoyaltyLog[]
+  sales       Sale[]
+  loyaltyLogs LoyaltyLog[]
 }
 
 // ============================================================
@@ -168,10 +167,10 @@ model Sale {
   notes          String?
   createdAt      DateTime      @default(now())
 
-  user     User      @relation(fields: [userId], references: [id])
-  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  items    SaleItem[]
-  refunds  Refund[]
+  user        User         @relation(fields: [userId], references: [id])
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items       SaleItem[]
+  refunds     Refund[]
   loyaltyLogs LoyaltyLog[]
 }
 
@@ -211,13 +210,13 @@ enum LoyaltyLogType {
 }
 
 model LoyaltyLog {
-  id         String          @id @default(cuid())
+  id         String         @id @default(cuid())
   customerId String
   saleId     String?
   delta      Int
   type       LoyaltyLogType
   note       String?
-  createdAt  DateTime        @default(now())
+  createdAt  DateTime       @default(now())
 
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   sale     Sale?    @relation(fields: [saleId], references: [id], onDelete: SetNull)
@@ -266,14 +265,14 @@ model Supplier {
 // ============================================================
 
 model Refund {
-  id         String   @id @default(cuid())
-  saleId     String
-  userId     String
-  amount     Decimal  @db.Decimal(10, 2)
-  reason     String?
-  items      Json
-  restoreStock Boolean @default(true)
-  createdAt  DateTime @default(now())
+  id           String   @id @default(cuid())
+  saleId       String
+  userId       String
+  amount       Decimal  @db.Decimal(10, 2)
+  reason       String?
+  items        Json
+  restoreStock Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
   sale Sale @relation(fields: [saleId], references: [id])
   user User @relation(fields: [userId], references: [id])
@@ -284,35 +283,36 @@ model Refund {
 // ============================================================
 
 model BusinessSettings {
-  id               String   @id @default("singleton")
-  name             String   @default("My Store")
-  logoUrl          String?
-  primaryColor     String   @default("#0f2044")
-  accentColor      String   @default("#f5c518")
-  currency         String   @default("$")
-  currencyDecimals Int      @default(2)
-  taxRate          Decimal  @default(0) @db.Decimal(5, 4)
-  taxName          String   @default("Tax")
-  receiptFooter    String   @default("Thank you for your purchase!")
-  language         String   @default("en")
+  id                 String   @id @default("singleton")
+  name               String   @default("My Store")
+  logoUrl            String?
+  primaryColor       String   @default("#0f2044")
+  accentColor        String   @default("#f5c518")
+  currency           String   @default("$")
+  currencyDecimals   Int      @default(2)
+  taxRate            Decimal  @default(0) @db.Decimal(5, 4)
+  taxName            String   @default("Tax")
+  receiptFooter      String   @default("Thank you for your purchase!")
+  language           String   @default("en")
   // Loyalty
-  loyaltyEnabled   Boolean  @default(false)
-  loyaltyEarnRate  Decimal  @default(1) @db.Decimal(8, 4)  // points per $1 spent
-  loyaltyRedeemValue Decimal @default(100) @db.Decimal(8, 4) // points per $1 discount
+  loyaltyEnabled     Boolean  @default(false)
+  loyaltyEarnRate    Decimal  @default(1) @db.Decimal(8, 4) // points per $1 spent
+  loyaltyRedeemValue Decimal  @default(100) @db.Decimal(8, 4) // points per $1 discount
   // Low-stock
-  lowStockThreshold Int     @default(5)
+  lowStockThreshold  Int      @default(5)
   // Image storage
-  storageProvider  String   @default("local")  // local | vercel_blob | cloudflare_r2 | s3
-  storageRegion    String?
-  storageBucket    String?
-  storageEndpoint  String?
-  storageAccessKey String?
-  storageSecretKey String?
-  storagePublicUrl String?
-  setupComplete    Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  storageProvider    String   @default("local") // local | vercel_blob | cloudflare_r2 | s3
+  storageRegion      String?
+  storageBucket      String?
+  storageEndpoint    String?
+  storageAccessKey   String?
+  storageSecretKey   String?
+  storagePublicUrl   String?
+  setupComplete      Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
+
 enum SubscriptionStatus {
   ACTIVE
   PAST_DUE
@@ -340,6 +340,7 @@ enum TransactionStatus {
   PREPARED
   REFUNDED
 }
+
 model SubscriptionPlan {
   id           String   @id @default(cuid())
   name         String
@@ -361,7 +362,7 @@ model Subscription {
   userId             String             @unique
   planId             String
   status             SubscriptionStatus @default(ACTIVE)
-  billingCycle       BillingCycle
+  billingCycle       BillingCycle       @default(MONTHLY)
   currentPeriodStart DateTime
   currentPeriodEnd   DateTime
   cancelAtPeriodEnd  Boolean            @default(false)
@@ -380,7 +381,7 @@ model Transaction {
   subscriptionId String?
   amount         Decimal           @db.Decimal(12, 2)
   currency       String            @default("UZS")
-  provider       PaymentProvider @default(PAYME)
+  provider       PaymentProvider   @default(PAYME)
   providerTxId   String?
   status         TransactionStatus @default(PENDING)
   metadata       Json?

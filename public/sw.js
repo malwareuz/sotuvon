@@ -3,19 +3,31 @@
  * Strategy: network-first for API routes, cache-first for static assets.
  */
 
-const CACHE_NAME = "sotuvon-pos-v2";
+const CACHE_NAME = "sotuvon-pos-v3";
 
 const STATIC_PRECACHE = [
   "/",
   "/pos",
   "/manifest.json",
-  "/icons/icon.svg",
 ];
 
 // ── Install: pre-cache the app shell ────────────────────────────────────────
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_PRECACHE))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.all(
+        STATIC_PRECACHE.map(async (url) => {
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              await cache.put(url, res);
+            }
+          } catch {
+            // Ignore transient precache errors during install
+          }
+        })
+      );
+    })
   );
   self.skipWaiting();
 });
