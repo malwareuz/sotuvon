@@ -57,7 +57,7 @@ export default function LoginPage() {
             />
             <div className="text-center">
               <h1 className="text-2xl font-bold tracking-tight text-[#0f2044]">SotuvOn</h1>
-              <p className="text-sm text-gray-500 mt-0.5">Sign in to your account</p>
+              <p className="text-sm text-gray-500 mt-0.5">Hisobingizga kiring</p>
             </div>
           </div>
 
@@ -80,7 +80,7 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                Password
+                Parol
               </label>
               <div className="relative">
                 <input
@@ -96,7 +96,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors p-1"
                   tabIndex={-1}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -114,16 +114,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#f5c518] px-4 py-2 text-sm font-bold text-[#0f2044] shadow-md shadow-[#f5c518]/30 transition-all hover:bg-yellow-400 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f5c518] disabled:pointer-events-none disabled:opacity-50"
+              className="mt-1 inline-flex cursor-pointer h-11 w-full items-center justify-center rounded-xl bg-[#f5c518] px-4 py-2 text-sm font-bold text-[#0f2044] shadow-md shadow-[#f5c518]/30 transition-all hover:bg-yellow-400 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f5c518] disabled:pointer-events-none disabled:opacity-50"
             >
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Kirish…" : "Tizimga kirish"}
             </button>
           </form>
         </div>
 
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-gray-400">
-          SotuvOn — Open Source Point of Sale
+          SotuvOn — savdo nuqtasi
         </p>
       </div>
     </div>

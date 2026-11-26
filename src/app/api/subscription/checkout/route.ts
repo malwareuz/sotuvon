@@ -1,29 +1,79 @@
-// src/app/api/subscription/checkout/route.ts
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { SUBSCRIPTION_PLANS } from "@/lib/subscription-plans";
 
 export async function POST(req: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-  const { planId, billingCycle, amount } = await req.json();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-  // 1. Transaction yaratish (PENDING holatida)
-  const transaction = await prisma.transaction.create({
-    data: {
-      userId: session.user.id,
-      amount,
-      currency: "UZS",
-      provider: "MANUAL", // ✅ Test rejimi uchun
-      status: "PENDING",
-      metadata: { planId, billingCycle },
-    },
-  });
+    const body = await req.json();
 
-  // 2. To'g'ridan-to'g'ri o'zimizning to'lov sahifamizga yuboramiz
-  const checkoutUrl = `/subscription/checkout?tx=${transaction.id}`;
+    const { planSlug, billingCycle } = body;
 
-  return NextResponse.json({ ok: true, transactionId: transaction.id, checkoutUrl });
+    if (
+      typeof planSlug !== "string" ||
+      !["monthly", "yearly"].includes(billingCycle)
+    ) {
+      return NextResponse.json(
+        { error: "Noto'g'ri tarif yoki to'lov muddati" },
+        { status: 400 }
+      );
+    }
+
+    const plan = SUBSCRIPTION_PLANS.find(
+      (p) => p.slug === planSlug
+    );
+
+    if (!plan) {
+      return NextResponse.json(
+        { error: "Tarif topilmadi" },
+        { status: 404 }
+      );
+    }
+
+    const amount =
+      billingCycle === "monthly"
+        ? plan.priceMonthly
+        : plan.priceYearly;
+
+    // Test tranzaksiyasi
+    const transaction = await prisma.transaction.create({
+      data: {
+        userId: session.user.id,
+        amount,
+        currency: "UZS",
+        provider: "MANUAL",
+        status: "PENDING",
+        metadata: {
+          planSlug: plan.slug,
+          billingCycle,
+        },
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      transactionId: transaction.id,
+      checkoutUrl: `/subscription/checkout?tx=${transaction.id}`,
+    });
+  } catch (error) {
+    console.error("Checkout error:", error);
+
+    return NextResponse.json(
+      { error: "Checkout yaratishda xatolik" },
+      { status: 500 }
+    );
+  }
 }

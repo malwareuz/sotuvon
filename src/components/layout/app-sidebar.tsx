@@ -113,7 +113,7 @@ export function AppSidebar({ user, onLinkClick }: AppSidebarProps) {
           <Link href={'/pos'} onClick={handleLinkClick}>
             <img
               src="/android-chrome-192x192.png"
-              alt="Olgax POS"
+              alt="sotuvon"
               className="h-9 w-9 rounded-xl object-contain shrink-0"
             />
           </Link>

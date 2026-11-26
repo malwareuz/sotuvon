@@ -26,7 +26,7 @@ export default function SetupLayout({ children }: { children: ReactNode }) {
           className="w-14 h-14 rounded-2xl shadow-md shadow-gray-200 mx-auto mb-3"
         />
         <div className="text-[#0f2044] font-bold text-xl tracking-tight">SotuvOn</div>
-        <p className="mt-0.5 text-gray-500 text-sm">Setup Wizard</p>
+        <p className="mt-0.5 text-gray-500 text-sm">O'rnatish ustasi</p>
       </header>
       <div className="relative w-full">
         {children}

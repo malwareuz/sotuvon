@@ -1,0 +1,51 @@
+
+export const SUBSCRIPTION_PLANS = [
+  {
+    id: "start",
+    name: "Start",
+    slug: "start",
+    priceMonthly: 149000,
+    priceYearly: 1620000,
+    features: [
+      "1 ta kassa",
+      "Asosiy hisobotlar",
+      "500 tagacha mahsulot",
+      "Email qo'llab-quvvatlash",
+    ],
+    isPopular: false,
+    sortOrder: 1,
+  },
+  {
+    id: "standard",
+    name: "Standard",
+    slug: "standard",
+    priceMonthly: 249000,
+    priceYearly: 2700000,
+    features: [
+      "3 tagacha kassa",
+      "Barcha hisobotlar",
+      "Cheksiz mahsulotlar",
+      "Mijozlar bazasi",
+      "Telegram qo'llab-quvvatlash",
+    ],
+    isPopular: true,
+    sortOrder: 2,
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    slug: "premium",
+    priceMonthly: 449000,
+    priceYearly: 4860000,
+    features: [
+      "Cheksiz kassa",
+      "Ko'p filiallar",
+      "API integratsiya",
+      "Ustuvor qo'llab-quvvatlash",
+      "Maxsus hisobotlar",
+      "Shaxsiy menejer",
+    ],
+    isPopular: false,
+    sortOrder: 3,
+  },
+] as const;

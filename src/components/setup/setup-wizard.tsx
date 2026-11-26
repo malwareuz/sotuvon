@@ -104,7 +104,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
     <div className="w-full max-w-lg mb-4">
       <div className="flex justify-between text-xs text-gray-400 mb-1">
         <span>
-          Step {step + 1} of {total}
+          Qadam {step + 1} ning {total}
         </span>
         <span>{STEP_LABELS[step]}</span>
       </div>
@@ -122,20 +122,20 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 
 function StepWelcome({ onNext }: { onNext: () => void }) {
   const features = [
-    { icon: "📡", text: "Works offline — never lose a sale" },
-    { icon: "🖨️", text: "Thermal & browser receipt printing" },
-    { icon: "👥", text: "Admin + cashier role management" },
-    { icon: "📊", text: "Daily reports & CSV export" },
-    { icon: "🎨", text: "Custom brand colors and logo" },
+    { icon: "📡", text: "Online rejimda ishlaydi — hech qachon chegirmalarni yo'qotmang" },
+    { icon: "🖨️", text: "Termal va brauzer cheklarini chop etish" },
+    { icon: "👥", text: " Administrator + kassir rolini boshqarish" },
+    { icon: "📊", text: "Kundalik hisobotlar va CSV eksporti" },
+    { icon: "🎨", text: " Maxsus brend ranglari va logotipi" },
   ];
 
   return (
     <StepCard>
       <div className="px-8 py-10 text-center">
         <div className="text-5xl mb-4">🏪</div>
-        <h1 className="text-2xl font-bold text-[#0f2044] mb-2">Welcome to SotuvOn</h1>
+        <h1 className="text-2xl font-bold text-[#0f2044] mb-2"> Xush kelibsiz SotuvOn ga</h1>
         <p className="text-gray-500 mb-8">
-          Let&apos;s set up your store in just a few steps. No technical knowledge required.
+            Keling, do'koningizni bir necha qadamda o'rnatamiz. Texnik bilim talab qilinmaydi.
         </p>
         <ul className="text-left space-y-3 mb-10">
           {features.map((f) => (
@@ -147,9 +147,9 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
         </ul>
         <button
           onClick={onNext}
-          className="w-full py-3 rounded-xl bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] font-bold text-sm transition-colors shadow-md shadow-[#f5c518]/30"
+          className="w-full py-3 cursor-pointer rounded-xl bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] font-bold text-sm transition-colors shadow-md shadow-[#f5c518]/30"
         >
-          Get Started →
+          Boshlash →
         </button>
       </div>
     </StepCard>
@@ -193,14 +193,14 @@ function StepSystemCheck({ onNext, onBack }: { onNext: () => void; onBack: () =>
   return (
     <StepCard>
       <div className="px-6 pt-8 pb-2">
-        <h2 className="text-xl font-bold text-[#0f2044] mb-1">System Check</h2>
+        <h2 className="text-xl font-bold text-[#0f2044] mb-1">Tizim tekshiruvi</h2>
         <p className="text-sm text-gray-500 mb-6">
-          We&apos;ll verify your environment variables are configured correctly.
+          Biz sizning muhit o'zgaruvchilaringiz to'g'ri sozlanganligini tekshiramiz.
         </p>
 
         {loading && (
           <div className="flex items-center gap-2 text-gray-400 text-sm py-6 justify-center">
-            <Spinner /> Checking your configuration…
+            <Spinner /> Konfiguratsiyangiz tekshirilmoqda…
           </div>
         )}
 
@@ -210,16 +210,16 @@ function StepSystemCheck({ onNext, onBack }: { onNext: () => void; onBack: () =>
               ok={!missingDbUrl}
               label={
                 missingDbUrl
-                  ? "DATABASE_URL — not set (required)"
-                  : "DATABASE_URL — configured ✓"
+                  ? "DATABASE_URL — o'rnatilmagan (majburiy)"
+                  : "DATABASE_URL — sozlangan ✓"
               }
             />
             <Check
               ok={!missingSecret}
               label={
                 missingSecret
-                  ? "BETTER_AUTH_SECRET — not set (required)"
-                  : "BETTER_AUTH_SECRET — configured ✓"
+                  ? "BETTER_AUTH_SECRET — o'rnatilmagan (majburiy)"
+                  : "BETTER_AUTH_SECRET — sozlangan ✓"
               }
             />
           </div>
@@ -228,12 +228,11 @@ function StepSystemCheck({ onNext, onBack }: { onNext: () => void; onBack: () =>
         {!loading && status && !status.envOk && (
           <div className="mt-4 space-y-2">
             <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
-              How to fix
+              Qanday tuzatish kerak
             </p>
             <Collapsible title="📄 Create a .env.local file">
               <p className="mt-3 mb-2 text-gray-600">
-                Create a file named <code className="text-[#0f2044] font-semibold">.env.local</code> in the root
-                of your project with the following content:
+               Nomli fayl yarating <code className="text-[#0f2044] font-semibold">.env.local</code> loyihangizning asosiy qismida quyidagi tarkib bilan:
               </p>
               <CopyBlock
                 code={`DATABASE_URL="postgresql://olgax:olgax@localhost:5432/olgax_pos"
@@ -242,15 +241,15 @@ BETTER_AUTH_SECRET="${Array.from(crypto.getRandomValues(new Uint8Array(32)))
   .join("")}"`}
               />
               <p className="mt-3 text-gray-400 text-xs">
-                After saving, restart the dev server with{" "}
+                Saqlagandan so'ng, ishlab chiquvchi serverni qayta ishga tushiring{" "}
                 <code className="text-[#0f2044] font-semibold">pnpm dev</code> and click{" "}
-                <strong>Check Again</strong>.
+                <strong>Qayta tekshirish</strong>.
               </p>
             </Collapsible>
 
             <Collapsible title="🐋 Start PostgreSQL with Docker">
               <p className="mt-3 mb-2 text-gray-600">
-                If you don&apos;t have PostgreSQL running, start it with Docker:
+                
               </p>
               <CopyBlock code="docker compose up -d postgres" />
               <p className="mt-2 text-gray-600">
@@ -270,23 +269,23 @@ BETTER_AUTH_SECRET="${Array.from(crypto.getRandomValues(new Uint8Array(32)))
       </div>
 
       <div className="flex items-center justify-between px-6 py-5 border-t border-gray-100 mt-4">
-        <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
-          ← Back
+        <button onClick={onBack} className="text-sm cursor-pointer text-gray-400 hover:text-gray-700 transition-colors">
+          ← Orqaga
         </button>
         <div className="flex gap-2">
           <button
             onClick={check}
             disabled={loading}
-            className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 cursor-pointer rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            {loading ? <Spinner /> : "Check Again"}
+            {loading ? <Spinner /> : "Qayta tekshirish"}
           </button>
           <button
             onClick={onNext}
             disabled={!status?.envOk || loading}
-            className="px-5 py-2 rounded-lg bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+            className="px-5 py-2 rounded-lg cursor-pointer bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
           >
-            Continue →
+            Davom etish →
           </button>
         </div>
       </div>
@@ -325,13 +324,13 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
       const res = await fetch("/api/setup/migrate", { method: "POST" });
       const data = await res.json();
       if (data.ok) {
-        setMigrateOutput(data.output || "Database initialized successfully.");
+        setMigrateOutput(data.output || "Ma'lumotlar bazasi muvaffaqiyatli ishga tushirildi.");
         await checkStatus();
       } else {
-        setMigrateError(data.error || "Migration failed.");
+        setMigrateError(data.error || "Migratsiya amalga oshmadi.");
       }
     } catch {
-      setMigrateError("Failed to connect to server.");
+      setMigrateError("Serverga ulanib bo'lmadi.");
     } finally {
       setMigrating(false);
     }
@@ -342,14 +341,14 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
   return (
     <StepCard>
       <div className="px-6 pt-8 pb-2">
-        <h2 className="text-xl font-bold text-[#0f2044] mb-1">Database Setup</h2>
+        <h2 className="text-xl font-bold text-[#0f2044] mb-1">Ma'lumotlar bazasini sozlash</h2>
         <p className="text-sm text-gray-500 mb-6">
-          Connect to your PostgreSQL database and initialize the tables.
+          PostgreSQL ma'lumotlar bazangizga ulaning va jadvallarni ishga tushiring.
         </p>
 
         {(loading || migrating) && (
           <div className="flex items-center gap-2 text-gray-400 text-sm py-4 justify-center">
-            <Spinner /> {migrating ? "Running database setup…" : "Testing connection…"}
+            <Spinner /> {migrating ? "Ma'lumotlar bazasi sozlamalari bajarilmoqda…" : "Ulanish sinovdan o'tkazilmoqda…"}
           </div>
         )}
 
@@ -358,12 +357,12 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
             {status.dbConnected ? (
               <div className="flex items-center gap-3 py-2">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
-                <span className="text-sm text-gray-700 font-medium">Database connection — Connected successfully</span>
+                <span className="text-sm text-gray-700 font-medium">Ma'lumotlar bazasi ulanishi — Muvaffaqiyatli ulandi</span>
               </div>
             ) : (
               <div className="flex items-center gap-3 py-2">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-xs font-bold">✗</span>
-                <span className="text-sm text-red-500 font-medium">Database connection — Failed to connect</span>
+                <span className="text-sm text-red-500 font-medium">Ma'lumotlar bazasi ulanishi — Ulanish amalga oshmadi</span>
               </div>
             )}
 
@@ -371,12 +370,12 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
               status.dbInitialized ? (
                 <div className="flex items-center gap-3 py-2">
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
-                  <span className="text-sm text-gray-700 font-medium">Database tables — Schema is up to date</span>
+                  <span className="text-sm text-gray-700 font-medium">Ma'lumotlar bazasi jadvallari — Sxema yangilangan</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3 py-2">
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">!</span>
-                  <span className="text-sm text-amber-600 font-medium">Database tables — Ready to be initialized</span>
+                  <span className="text-sm text-amber-600 font-medium">Ma'lumotlar bazasi jadvallari — Boshlashga tayyor</span>
                 </div>
               )
             )}
@@ -385,7 +384,7 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
 
         {!loading && status?.dbError && (
           <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3">
-            <p className="text-xs font-semibold text-red-600 mb-1">Connection error</p>
+            <p className="text-xs font-semibold text-red-600 mb-1">Ulanishda xatolik</p>
             <p className="text-xs text-red-500 font-mono">{status.dbError}</p>
           </div>
         )}
@@ -398,17 +397,17 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
 
         {migrateError && (
           <div className="mt-4 rounded-lg bg-red-50 border border-red-200 p-3">
-            <p className="text-xs font-semibold text-red-600 mb-1">Error</p>
+            <p className="text-xs font-semibold text-red-600 mb-1">Xato</p>
             <p className="text-xs text-red-500 font-mono whitespace-pre-wrap">{migrateError}</p>
           </div>
         )}
 
         {!loading && status && !status.dbConnected && (
           <Collapsible title="🐋 How to start PostgreSQL">
-            <p className="mt-3 mb-2 text-gray-600">Run this command to start the database:</p>
+            <p className="mt-3 mb-2 text-gray-600">Ma'lumotlar bazasini ishga tushirish uchun ushbu buyruqni bajaring:</p>
             <CopyBlock code="docker compose up -d postgres" />
             <p className="mt-2 text-gray-400 text-xs">
-              Then click <strong>Test Connection</strong> again.
+              Keyin bosing <strong>Sinov ulanishi</strong>  yana.
             </p>
           </Collapsible>
         )}
@@ -416,40 +415,39 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
         {!loading && status?.dbConnected && !status.dbInitialized && !migrateOutput && (
           <div className="mt-4 p-4 rounded-lg bg-amber-50 border border-amber-200">
             <p className="text-sm text-amber-800">
-              <strong>Ready to initialize!</strong> Click the button below to create all required
-              database tables. This takes about 5–10 seconds.
+              <strong>Boshlashga tayyor!</strong> Barcha kerakli ma'lumotlar bazasi jadvallarini yaratish uchun quyidagi tugmani bosing. Bu taxminan 5–10 soniya davom etadi.
             </p>
           </div>
         )}
       </div>
 
       <div className="flex items-center justify-between px-6 py-5 border-t border-gray-100 mt-4">
-        <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
-          ← Back
+        <button onClick={onBack} className="text-sm cursor-pointer text-gray-400 hover:text-gray-700 transition-colors">
+          ← Orqaga
         </button>
         <div className="flex gap-2">
           <button
             onClick={checkStatus}
             disabled={loading || migrating}
-            className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-lg border cursor-pointer border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            Test Connection
+            Sinov ulanishi
           </button>
           {status?.dbConnected && !status.dbInitialized && (
             <button
               onClick={runMigrations}
               disabled={migrating}
-              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold transition-colors disabled:opacity-40"
+              className="px-4 py-2 rounded-lg cursor-pointer bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold transition-colors disabled:opacity-40"
             >
-              {migrating ? <Spinner /> : "Initialize DB"}
+              {migrating ? <Spinner /> : "Ma'lumotlar bazasini ishga tushirish"}
             </button>
           )}
           <button
             onClick={onNext}
             disabled={!canContinue}
-            className="px-5 py-2 rounded-lg bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+            className="px-5 py-2 rounded-lg bg-[#f5c518] cursor-pointer hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
           >
-            Continue →
+           Davom etish →
           </button>
         </div>
       </div>
@@ -459,167 +457,167 @@ function StepDatabase({ onNext, onBack }: { onNext: () => void; onBack: () => vo
 
 // ─── Step 3 — Admin Account ───────────────────────────────────────────────────
 
-function StepAdminAccount({
-  onNext,
-  onBack,
-  setAdminEmail,
-}: {
-  onNext: () => void;
-  onBack: () => void;
-  setAdminEmail: (e: string) => void;
-}) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  function StepAdminAccount({
+    onNext,
+    onBack,
+    setAdminEmail,
+  }: {
+    onNext: () => void;
+    onBack: () => void;
+    setAdminEmail: (e: string) => void;
+  }) {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-  const validate = () => {
-    if (name.trim().length < 2) return "Name must be at least 2 characters.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
-    if (password.length < 8) return "Password must be at least 8 characters.";
-    if (password !== confirm) return "Passwords do not match.";
-    return null;
-  };
+    const validate = () => {
+      if (name.trim().length < 2) return "Ism kamida 2 ta belgidan iborat bo'lishi kerak.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Iltimos, to'g'ri e-pochta manzilini kiriting.";
+      if (password.length < 8) return "Parol kamida 8 ta belgidan iborat bo'lishi kerak.";
+      if (password !== confirm) return "Parollar mos kelmayapti.";
+      return null;
+    };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const err = validate();
-    if (err) { setError(err); return; }
-    setError("");
-    setLoading(true);
-    try {
-      const res = await fetch("/api/setup/admin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setAdminEmail(data.email);
-        onNext();
-      } else {
-        setError(typeof data.error === "string" ? data.error : "Failed to create account.");
+    const submit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      const err = validate();
+      if (err) { setError(err); return; }
+      setError("");
+      setLoading(true);
+      try {
+        const res = await fetch("/api/setup/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          setAdminEmail(data.email);
+          onNext();
+        } else {
+          setError(typeof data.error === "string" ? data.error : "  Hisob yaratib bo'lmadi.");
+        }
+      } catch {
+        setError("Serverga ulanib bo'lmadi.");
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setError("Could not connect to server.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  const inputClass = "flex h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:border-[#0f2044] focus:bg-white focus:ring-2 focus:ring-[#0f2044]/10";
+    const inputClass = "flex h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:border-[#0f2044] focus:bg-white focus:ring-2 focus:ring-[#0f2044]/10";
 
-  return (
-    <StepCard>
-      <form onSubmit={submit}>
-        <div className="px-6 pt-8 pb-2">
-          <h2 className="text-xl font-bold text-[#0f2044] mb-1">Create Admin Account</h2>
-          <p className="text-sm text-gray-500 mb-6">
-            This account will have full access to all settings and reports.
-          </p>
+    return (
+      <StepCard>
+        <form onSubmit={submit}>
+          <div className="px-6 pt-8 pb-2">
+            <h2 className="text-xl font-bold text-[#0f2044] mb-1">Administrator hisobini yaratish</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Bu hisob barcha sozlamalar va hisobotlarga to'liq kirish huquqiga ega bo'ladi.
+            </p>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Jane Smith"
-                autoComplete="name"
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jane@mystore.com"
-                autoComplete="email"
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Password</label>
-              <div className="relative">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">To'liq ism</label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 8 characters"
-                  autoComplete="new-password"
-                  className={`${inputClass} pr-12`}
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Azizbek Maxkamov"
+                  autoComplete="name"
+                  className={inputClass}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
-                  tabIndex={-1}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5"> E-pochta manzili</label>
+                <input
+                  type="tel"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="jane@mystore.com"
+                  autoComplete="email"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Parol</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Kamida 8 ta belgi"
+                    autoComplete="new-password"
+                    className={`${inputClass} pr-12`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors p-1"
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
+                  Parolni tasdiqlang
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    placeholder="Parolingizni takrorlang"
+                    autoComplete="new-password"
+                    className={`${inputClass} pr-12`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    tabIndex={-1}
+                    aria-label={showConfirm ? "Hide password" : "Show password"}
+                  >
+                    {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirm ? "text" : "password"}
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="Repeat your password"
-                  autoComplete="new-password"
-                  className={`${inputClass} pr-12`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
-                  tabIndex={-1}
-                  aria-label={showConfirm ? "Hide password" : "Show password"}
-                >
-                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+
+            {error && (
+              <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600">{error}</p>
               </div>
-            </div>
+            )}
           </div>
 
-          {error && (
-            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between px-6 py-5 border-t border-gray-100 mt-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-sm text-gray-400 hover:text-gray-700 transition-colors"
-          >
-            ← Back
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2.5 rounded-lg bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-40 flex items-center gap-2 shadow-sm"
-          >
-            {loading && <Spinner />} Create Account →
-          </button>
-        </div>
-      </form>
-    </StepCard>
-  );
-}
+          <div className="flex items-center justify-between px-6 py-5 border-t border-gray-100 mt-4">
+            <button
+              type="button"
+              onClick={onBack}
+              className="text-sm text-gray-400 cursor-pointer hover:text-gray-700 transition-colors"
+            >
+              ←   Orqaga
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2.5 rounded-lg bg-[#f5c518] cursor-pointer hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-40 flex items-center gap-2 shadow-sm"
+            >
+              {loading && <Spinner />} Hisob yaratish →
+            </button>
+          </div>
+        </form>
+      </StepCard>
+    );
+  }
 
 // ─── Step 4 — Business Settings ───────────────────────────────────────────────
 
@@ -635,13 +633,13 @@ function StepBusinessSettings({
   const [currencyDecimals, setCurrencyDecimals] = useState("2");
   const [taxRate, setTaxRate] = useState("0");
   const [taxName, setTaxName] = useState("Tax");
-  const [receiptFooter, setReceiptFooter] = useState("Thank you for your purchase!");
+  const [receiptFooter, setReceiptFooter] = useState("Xaridingiz uchun tashakkur!");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!businessName.trim()) { setError("Business name is required."); return; }
+    if (!businessName.trim()) { setError("Biznes nomini kiritish shart."); return; }
     setError("");
     setLoading(true);
     try {
@@ -661,10 +659,10 @@ function StepBusinessSettings({
       if (data.ok) {
         onNext();
       } else {
-        setError(typeof data.error === "string" ? data.error : "Failed to save settings.");
+        setError(typeof data.error === "string" ? data.error : "Sozlamalarni saqlashda xatolik yuz berdi.");
       }
     } catch {
-      setError("Could not connect to server.");
+      setError("Serverga ulanib bo'lmadi.");
     } finally {
       setLoading(false);
     }
@@ -676,22 +674,21 @@ function StepBusinessSettings({
     <StepCard>
       <form onSubmit={submit}>
         <div className="px-6 pt-8 pb-2">
-          <h2 className="text-xl font-bold text-[#0f2044] mb-1">Business Information</h2>
+          <h2 className="text-xl font-bold text-[#0f2044] mb-1">Biznes haqida ma'lumot</h2>
           <p className="text-sm text-gray-500 mb-6">
-            This appears on your receipts and throughout the POS. You can change it later in
-            Settings.
+           Bu sizning cheklaringizda va POS terminalida ko'rsatiladi. Keyinroq uni Sozlamalar bo'limida o'zgartirishingiz mumkin.
           </p>
 
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-                Business Name <span className="text-red-400">*</span>
+               Biznes nomi  <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="My Awesome Store"
+                placeholder="Mening ajoyib do'konim"
                 className={inputClass}
               />
             </div>
@@ -699,7 +696,7 @@ function StepBusinessSettings({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-                  Currency Symbol
+                  Valyuta belgisi *
                 </label>
                 <input
                   type="text"
@@ -712,23 +709,23 @@ function StepBusinessSettings({
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-                  Decimal Places
+                  O'nlik kasrlar *
                 </label>
                 <select
                   value={currencyDecimals}
                   onChange={(e) => setCurrencyDecimals(e.target.value)}
                   className={inputClass}
                 >
-                  <option value="0">0 (e.g. ¥100)</option>
-                  <option value="2">2 (e.g. $9.99)</option>
-                  <option value="3">3 (e.g. 1.250 KD)</option>
+                  <option value="0">0 (¥100)</option>
+                  <option value="2">2 ($9.99)</option>
+                  <option value="3">3 (1.250 KD)</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Tax Rate (%)</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Soliq stavkasi * (%)</label>
                 <input
                   type="number"
                   value={taxRate}
@@ -741,7 +738,7 @@ function StepBusinessSettings({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Tax Name</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Soliq nomi *</label>
                 <input
                   type="text"
                   value={taxName}
@@ -755,14 +752,14 @@ function StepBusinessSettings({
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-                Receipt Footer <span className="text-gray-400 font-normal normal-case">(optional)</span>
+                Chek pastki qismi <span className="text-gray-400 font-normal normal-case">( ixtiyoriy)</span>
               </label>
               <input
                 type="text"
                 value={receiptFooter}
                 onChange={(e) => setReceiptFooter(e.target.value)}
                 maxLength={200}
-                placeholder="Thank you for your purchase!"
+                placeholder=" Xaridingiz uchun tashakkur!"
                 className={inputClass}
               />
             </div>
@@ -779,16 +776,16 @@ function StepBusinessSettings({
           <button
             type="button"
             onClick={onBack}
-            className="text-sm text-gray-400 hover:text-gray-700 transition-colors"
+            className="text-sm text-gray-400 cursor-pointer hover:text-gray-700 transition-colors"
           >
-            ← Back
+            ← Orqaga
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 rounded-lg bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-40 flex items-center gap-2 shadow-sm"
+            className="px-6 py-2.5 rounded-lg bg-[#f5c518] cursor-pointer hover:bg-yellow-400 text-[#0f2044] text-sm font-bold transition-colors disabled:opacity-40 flex items-center gap-2 shadow-sm"
           >
-            {loading && <Spinner />} Save & Launch →
+            {loading && <Spinner />} Saqlash va ishga tushirish →
           </button>
         </div>
       </form>
@@ -807,11 +804,11 @@ function StepDone({ adminEmail }: { adminEmail: string }) {
         <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center text-4xl text-emerald-600 mx-auto mb-6">
           ✓
         </div>
-        <h2 className="text-2xl font-bold text-[#0f2044] mb-2">You&apos;re all set!</h2>
-        <p className="text-gray-500 mb-2">Your SotuvOn is ready to use.</p>
+        <h2 className="text-2xl font-bold text-[#0f2044] mb-2">Hammasi tayyor!</h2>
+        <p className="text-gray-500 mb-2">Sizning SotuvOn qurilmangiz foydalanishga tayyor.</p>
         {adminEmail && (
           <p className="text-sm text-gray-400 mb-8">
-            Admin account:{" "}
+            Administrator hisobi:{" "}
             <span className="text-[#0f2044] font-semibold">{adminEmail}</span>
           </p>
         )}
@@ -819,27 +816,22 @@ function StepDone({ adminEmail }: { adminEmail: string }) {
         <div className="space-y-3">
           <button
             onClick={() => router.push("/pos")}
-            className="w-full py-3 rounded-xl bg-[#f5c518] hover:bg-yellow-400 text-[#0f2044] font-bold text-sm transition-colors shadow-md shadow-[#f5c518]/30"
+            className="w-full py-3 rounded-xl bg-[#f5c518] cursor-pointer hover:bg-yellow-400 text-[#0f2044] font-bold text-sm transition-colors shadow-md shadow-[#f5c518]/30"
           >
-            Open POS →
+            Dasturni  ochish →
           </button>
-          <button
-            onClick={() => router.push("/products")}
-            className="w-full py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm transition-colors"
-          >
-            Add Products First
-          </button>
+          
         </div>
 
         <p className="mt-8 text-xs text-gray-400">
-          You can change your business settings anytime in the{" "}
+          Siz biznesingiz sozlamalarini istalgan vaqtda o'zgartirishingiz mumkin{" "}
           <button
             onClick={() => router.push("/settings")}
             className="text-[#0f2044] underline font-medium"
           >
-            Settings
+            Sozlamalar
           </button>{" "}
-          page.
+        sahifa.
         </p>
       </div>
     </StepCard>

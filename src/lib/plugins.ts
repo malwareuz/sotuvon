@@ -1,19 +1,4 @@
-/**
- * Olgax POS Plugin System
- *
- * Lightweight hook-based plugin registry that lets extensions tap into
- * key application events without modifying core code.
- *
- * Usage:
- *   import { pluginRegistry } from "@/lib/plugins";
- *   pluginRegistry.on("onSaleComplete", (payload) => { ... });
- *   // In core code:
- *   await pluginRegistry.fire("onSaleComplete", { saleId, total, ... });
- */
 
-// ---------------------------------------------------------------------------
-// Hook payload types
-// ---------------------------------------------------------------------------
 
 export interface SaleCompletePayload {
   saleId: string;

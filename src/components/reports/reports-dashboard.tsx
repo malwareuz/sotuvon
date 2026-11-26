@@ -121,7 +121,7 @@ export function ReportsDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `olgax-report-${rangeLabel.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `sotuvon-report-${rangeLabel.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -148,7 +148,7 @@ export function ReportsDashboard() {
     <div className="space-y-6">
       {/* Print-only header */}
       <div className="hidden print:block mb-6">
-        <h1 className="text-2xl font-bold">Olgax POS — {t("title")}</h1>
+        <h1 className="text-2xl font-bold">SotuvOn — {t("title")}</h1>
         <p className="text-sm text-gray-500 mt-1">
           {range === "today" ? t("today") : range === "week" ? t("this_week") : range === "month" ? t("this_month") : `${from} – ${to}`}
           {" · "}

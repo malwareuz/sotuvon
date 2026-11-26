@@ -66,8 +66,6 @@ export function AppShell({ user, cssVars, children }: AppShellProps) {
             >
               <Menu className="h-5 w-5" />
             </button>
-            {/* Mobile logo — only visible on mobile (sidebar hidden) */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/android-chrome-192x192.png"
               alt="SotuvOn"

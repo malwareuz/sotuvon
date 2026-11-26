@@ -19,7 +19,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       select: { setupComplete: true },
     });
     if (existing?.setupComplete) {
-      return NextResponse.json({ error: "Setup already complete" }, { status: 403 });
+      return NextResponse.json({ error: "Sozlash allaqachon yakunlandi" }, { status: 403 });
     }
   } catch {
     // DB not ready
