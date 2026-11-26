@@ -5,16 +5,16 @@ import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
-
+  import { useTranslations } from "next-intl";
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
-
+const t = useTranslations("pform");
   const tabs = [
-    { label: "General", href: "/settings", id: "general", adminOnly: true },
-    { label: "Users", href: "/settings/users", id: "users", adminOnly: true },
-    { label: "Profile", href: "/settings/profile", id: "profile", adminOnly: false },
+    { label: `${t("gene")}`, href: "/settings", id: "general", adminOnly: true },
+    { label: `${t("usr")}`, href: "/settings/users", id: "users", adminOnly: true },
+    { label: `${t("profill")}`, href: "/settings/profile", id: "profile", adminOnly: false },
   ];
 
   const visibleTabs = tabs.filter((tab) => !tab.adminOnly || isAdmin);

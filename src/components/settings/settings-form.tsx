@@ -221,7 +221,7 @@ export function SettingsForm({ settings }: Props) {
           >
             <option value="en">English</option>
             <option value="uz">Uzbekistan</option>            
-            <option value="ar">العربية (Arabic)</option>        
+                    
             <option value="ru">Русский (Russian)</option>
           </select>
         </div>

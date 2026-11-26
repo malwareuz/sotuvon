@@ -42,12 +42,10 @@ export async function POST(req: Request) {
       }
 
       case "PerformTransaction": {
-        // To'lov muvaffaqiyatli yakunlandi! Obunani faollashtiramiz
         const { id: paymeTxId } = params;
         const tx = await prisma.transaction.findFirst({ where: { metadata: { path: ["paymeTxId"], equals: paymeTxId } } });
         if (!tx) return NextResponse.json({ error: { code: -31003, message: "Transaction not found" } });
 
-        // Obunani faollashtirish (sizning mavjud confirm logikangiz)
         await confirmSubscription(tx);
 
         await prisma.transaction.update({ where: { id: tx.id }, data: { status: "SUCCESS" } });

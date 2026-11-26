@@ -211,6 +211,9 @@
   "cusr": "Create and manage system users"
 },
 "pform": {
+  "gene": "General",
+"usr": "User",
+"profill": "Profile",
   "proaddddd":"Add Product",
     "proup": "Product updated successfully",
     "procr": "Product created successfully",
