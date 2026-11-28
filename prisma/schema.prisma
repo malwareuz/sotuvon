@@ -107,6 +107,7 @@ model Verification {
 
 model Product {
   id                String   @id @default(cuid())
+  
   name              String
   sku               String?  @unique
   barcode           String?  @unique
@@ -293,7 +294,7 @@ model BusinessSettings {
   taxRate            Decimal  @default(0) @db.Decimal(5, 4)
   taxName            String   @default("Tax")
   receiptFooter      String   @default("Thank you for your purchase!")
-  language           String   @default("en")
+  language           String   @default("uz")
   // Loyalty
   loyaltyEnabled     Boolean  @default(false)
   loyaltyEarnRate    Decimal  @default(1) @db.Decimal(8, 4) // points per $1 spent

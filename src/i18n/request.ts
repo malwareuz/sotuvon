@@ -2,7 +2,7 @@ import { getRequestConfig } from "next-intl/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 
-const SUPPORTED_LOCALES = ["en","uz",  "ar",  "ru"] as const;
+const SUPPORTED_LOCALES = ["en","uz",    "ru"] as const;
 type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 function isValidLocale(value: string | undefined): value is Locale {
@@ -19,13 +19,13 @@ export default getRequestConfig(async () => {
   }
 
   // Fallback: read from DB business settings
-  let locale: Locale = "en";
+  let locale: Locale = "uz";
   try {
     const settings = await prisma.businessSettings.findUnique({
       where: { id: "singleton" },
       select: { language: true },
     });
-    const lang = settings?.language ?? "en";
+    const lang = settings?.language ?? "uz";
     if (isValidLocale(lang)) locale = lang;
   } catch {
     // DB not available — use English

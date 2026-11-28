@@ -3,6 +3,6 @@ node_modules
 out
 .git
 .github
-*.local
+*local
 pnpm-debug.log
 .env

@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
@@ -91,7 +90,13 @@ export default async function RootLayout({
           />
         </NextIntlClientProvider>
 
-        {/* Service Worker Registration */}
+        {/* 
+          DIQQAT: Service Worker vaqtincha o'chirildi.
+          Sabab: Brauzerdagi eski kesh (Cache Storage) muammolarini 
+          hal qilish uchun. Muammo bartaraf bo'lgach, pastdagi 
+          izohdan chiqarib, Service Worker'ni qayta yoqishingiz mumkin.
+        */}
+        {/*
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -105,6 +110,7 @@ export default async function RootLayout({
             `,
           }}
         />
+        */}
       </body>
     </html>
   );
